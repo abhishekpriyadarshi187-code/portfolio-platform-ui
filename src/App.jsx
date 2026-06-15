@@ -6,6 +6,7 @@ import ProfileBuilder from "./pages/ProfileBuilder";
 import PortfolioView from "./pages/PortfolioView";
 import { useEffect } from "react";
 import { getTheme, setTheme } from "./utils/theme";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+  path="/resume"
+  element={
+    <ProtectedRoute>
+      <ResumeBuilder />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
   );
 }

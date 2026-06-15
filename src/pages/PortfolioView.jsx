@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/portfolio/PortfolioView.css";
 import { setTheme, getTheme } from "../utils/theme";
+import ResumeBuilder from "./ResumeBuilder";
 
 const emptyProfile = {
   fullName: "",
@@ -116,7 +117,7 @@ function PortfolioView({ isOwner = true }) {
   };
 
   const handleResumeClick = () => {
-    alert("Resume feature coming soon 🚀");
+    navigate("/resume");
   };
 
   if (loading) {
