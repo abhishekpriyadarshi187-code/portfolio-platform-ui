@@ -4,6 +4,7 @@ import { uploadProfileImage } from "../../services/profileService";
 
 function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
   const fileInputRef = useRef(null);
+  const imageSrc = profile.profileImageUrl || profile.profilePhoto || "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +40,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
     setProfile((prev) => ({
       ...prev,
       profilePhoto: localPreviewUrl,
+      profileImageUrl: "",
     }));
 
     try {
@@ -79,9 +81,9 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
 
         <div className="photo-row">
           <div className="photo-preview">
-            {profile.profilePhoto || profile.profileImageUrl ? (
+            {imageSrc ? (
               <img
-                src={profile.profilePhoto || profile.profileImageUrl}
+                src={imageSrc}
                 alt="Profile Preview"
                 className="photo-image"
               />
@@ -107,7 +109,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
               Upload Photo
             </button>
 
-            {(profile.profilePhoto || profile.profileImageUrl) && (
+            {imageSrc && (
               <button
                 type="button"
                 className="remove-btn"

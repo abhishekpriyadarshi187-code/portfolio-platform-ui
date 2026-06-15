@@ -3,7 +3,7 @@ export const mapProfileToResumeData = (profile) => ({
   email: profile?.email || "",
   headline: profile?.headline || "",
   about: profile?.about || "",
-  profilePhoto: profile?.profilePhoto || profile?.profileImageUrl || "",
+  profilePhoto: profile?.profileImageUrl || profile?.profilePhoto || "",
   profileImageUrl: profile?.profileImageUrl || "",
   skills: profile?.skills || [],
   experiences: profile?.experiences || [],

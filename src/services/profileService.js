@@ -37,7 +37,7 @@ const normalizeProfileData = (data) => {
   return {
     ...data,
     profileImageUrl: data.profileImageUrl || "",
-    profilePhoto: data.profilePhoto || data.profileImageUrl || "",
+    profilePhoto: data.profileImageUrl || "",
   };
 };
 
@@ -78,4 +78,27 @@ export const uploadProfileImage = async (file) => {
 
   const data = await parseResponseData(response);
   return normalizeProfileData(data);
+};
+
+export const getProfileImageBase64 = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${BASE_URL}/image/base64`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || `Request failed with status ${response.status}`);
+  }
+
+  return text;
 };

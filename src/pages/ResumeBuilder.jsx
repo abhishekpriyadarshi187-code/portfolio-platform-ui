@@ -8,7 +8,7 @@ import {
   saveResumeTemplate,
   uploadResumePdf,
 } from "../services/resumeService";
-import { getProfile } from "../services/profileService";
+import { getProfile, getProfileImageBase64 } from "../services/profileService";
 import "../styles/resume/ResumeBuilder.css";
 
 function ResumeBuilder() {
@@ -16,7 +16,9 @@ function ResumeBuilder() {
   const [selectedTemplate, setSelectedTemplate] = useState("template1");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [pdfResumeData, setPdfResumeData] = useState(null);
   const previewRef = useRef(null);
+  const pdfRef = useRef(null);
 
   useEffect(() => {
     loadData();
@@ -60,19 +62,35 @@ function ResumeBuilder() {
 
       setSaving(true);
 
-      const element = previewRef.current;
+      let dataForPdf = { ...resumeData };
+
+      try {
+        const base64Image = await getProfileImageBase64();
+
+        if (base64Image) {
+          dataForPdf.profileImageUrl = base64Image;
+          dataForPdf.profilePhoto = base64Image;
+        }
+      } catch (error) {
+        console.error("Failed to load base64 profile image for PDF:", error);
+      }
+
+      setPdfResumeData(dataForPdf);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const element = pdfRef.current || previewRef.current;
 
       const worker = html2pdf().set({
         margin: 0.2,
-        filename: `${resumeData.fullName || "resume"}.pdf`,
+        filename: `${dataForPdf.fullName || "resume"}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: false },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
       }).from(element);
 
       const pdfBlob = await worker.outputPdf("blob");
 
-      const file = new File([pdfBlob], `${resumeData.fullName || "resume"}.pdf`, {
+      const file = new File([pdfBlob], `${dataForPdf.fullName || "resume"}.pdf`, {
         type: "application/pdf",
       });
 
@@ -81,7 +99,7 @@ function ResumeBuilder() {
       const downloadUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${resumeData.fullName || "resume"}.pdf`;
+      link.download = `${dataForPdf.fullName || "resume"}.pdf`;
       link.click();
       URL.revokeObjectURL(downloadUrl);
 
@@ -90,6 +108,7 @@ function ResumeBuilder() {
       console.error("Failed to generate/upload resume:", error);
       alert(error.message || "Failed to generate resume PDF");
     } finally {
+      setPdfResumeData(null);
       setSaving(false);
     }
   };
@@ -123,6 +142,17 @@ function ResumeBuilder() {
       <div className="resume-preview-wrapper">
         <div id="resume-preview" ref={previewRef}>
           <ResumePreview selectedTemplate={selectedTemplate} data={resumeData} />
+        </div>
+      </div>
+
+      <div className="resume-pdf-hidden">
+        <div id="resume-pdf-preview" ref={pdfRef}>
+          {pdfResumeData && (
+            <ResumePreview
+              selectedTemplate={selectedTemplate}
+              data={pdfResumeData}
+            />
+          )}
         </div>
       </div>
     </div>

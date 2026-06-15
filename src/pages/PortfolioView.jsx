@@ -24,6 +24,7 @@ function PortfolioView({ isOwner = true }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [theme, setThemeState] = useState("light");
+  const imageSrc = profile.profileImageUrl || profile.profilePhoto || "";
 
   useEffect(() => {
     fetchProfile();
@@ -170,9 +171,9 @@ function PortfolioView({ isOwner = true }) {
         <section className="portfolio-hero-card">
           <div className="portfolio-hero-left">
             <div className="portfolio-avatar-shell">
-              {profile.profilePhoto || profile.profileImageUrl ? (
+              {imageSrc ? (
                 <img
-                  src={profile.profilePhoto || profile.profileImageUrl}
+                  src={imageSrc}
                   alt={profile.fullName || "Profile"}
                   className="portfolio-avatar"
                 />
