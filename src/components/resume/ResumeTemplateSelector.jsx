@@ -23,10 +23,12 @@ function ResumeTemplateSelector({ selectedTemplate, onSelect }) {
           }`}
           onClick={() => onSelect(template.id)}
         >
-          <h3>{template.title}</h3>
-          <p>{template.description}</p>
-          <span>
-            {selectedTemplate === template.id ? "Selected" : "Choose Template"}
+          <div className="resume-template-card-copy">
+            <h3>{template.title}</h3>
+            <p>{template.description}</p>
+          </div>
+          <span className="resume-template-card-status">
+            {selectedTemplate === template.id ? "Selected" : "Choose"}
           </span>
         </button>
       ))}

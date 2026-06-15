@@ -24,6 +24,15 @@ function ResumeBuilder() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const rootElement = document.getElementById("root");
+    rootElement?.classList.add("resume-builder-root");
+
+    return () => {
+      rootElement?.classList.remove("resume-builder-root");
+    };
+  }, []);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -119,29 +128,69 @@ function ResumeBuilder() {
 
   return (
     <div className="resume-builder-page">
-      <div className="resume-builder-header">
-        <div>
-          <h1>Resume Builder</h1>
-          <p>Select a template, preview it, then generate your PDF.</p>
-        </div>
+      <div className="resume-builder-shell">
+        <header className="resume-builder-header">
+          <div className="resume-builder-heading">
+            <span className="resume-builder-kicker">Resume Workspace</span>
+            <h1>Resume Builder</h1>
+            <p>Create and export professional resumes from your portfolio.</p>
+          </div>
+        </header>
 
-        <button
-          className="resume-builder-primary-btn"
-          onClick={handleDownloadAndUpload}
-          disabled={saving}
-        >
-          {saving ? "Generating..." : "Generate & Download PDF"}
-        </button>
-      </div>
+        <div className="resume-builder-workspace">
+          <aside className="resume-builder-sidebar">
+            <section className="resume-builder-panel">
+              <span className="resume-builder-panel-label">Templates</span>
+              <h2>Choose your layout</h2>
+              <p>Switch templates instantly and keep the preview front and center.</p>
 
-      <ResumeTemplateSelector
-        selectedTemplate={selectedTemplate}
-        onSelect={handleTemplateSelect}
-      />
+              <ResumeTemplateSelector
+                selectedTemplate={selectedTemplate}
+                onSelect={handleTemplateSelect}
+              />
+            </section>
 
-      <div className="resume-preview-wrapper">
-        <div id="resume-preview" ref={previewRef}>
-          <ResumePreview selectedTemplate={selectedTemplate} data={resumeData} />
+            <section className="resume-builder-panel resume-builder-actions-panel">
+              <span className="resume-builder-panel-label">Resume Actions</span>
+              <h2>Export your resume</h2>
+              <p>
+                Generate a polished A4 PDF using your selected template and portfolio
+                content.
+              </p>
+
+              <div className="resume-builder-actions">
+                <button
+                  className="resume-builder-primary-btn"
+                  onClick={handleDownloadAndUpload}
+                  disabled={saving}
+                >
+                  {saving ? "Generating PDF..." : "Generate & Download PDF"}
+                </button>
+                <div className="resume-builder-action-note">
+                  <strong>Selected template</strong>
+                  <span>{selectedTemplate === "template2" ? "Modern With Image" : "Classic Professional"}</span>
+                </div>
+              </div>
+            </section>
+          </aside>
+
+          <section className="resume-preview-stage">
+            <div className="resume-preview-stage-header">
+              <div>
+                <span className="resume-builder-panel-label">Live Preview</span>
+                <h2>A4 Resume Preview</h2>
+              </div>
+              <span className="resume-preview-chip">
+                {selectedTemplate === "template2" ? "Template Two" : "Template One"}
+              </span>
+            </div>
+
+            <div className="resume-preview-wrapper">
+              <div id="resume-preview" ref={previewRef}>
+                <ResumePreview selectedTemplate={selectedTemplate} data={resumeData} />
+              </div>
+            </div>
+          </section>
         </div>
       </div>
 
