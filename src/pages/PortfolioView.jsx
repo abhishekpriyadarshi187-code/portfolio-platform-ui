@@ -9,6 +9,7 @@ const emptyProfile = {
   headline: "",
   about: "",
   profilePhoto: "",
+  profileImageUrl: "",
   skills: [],
   experiences: [],
   projects: [],
@@ -69,7 +70,15 @@ function PortfolioView({ isOwner = true }) {
         );
       }
 
-      setProfile(data || emptyProfile);
+      setProfile(
+        data
+          ? {
+              ...data,
+              profilePhoto: data.profileImageUrl || "",
+              profileImageUrl: data.profileImageUrl || "",
+            }
+          : emptyProfile
+      );
     } catch (err) {
       console.error("Failed to load profile:", err);
       setError(err.message || "Failed to load profile");
@@ -161,9 +170,9 @@ function PortfolioView({ isOwner = true }) {
         <section className="portfolio-hero-card">
           <div className="portfolio-hero-left">
             <div className="portfolio-avatar-shell">
-              {profile.profilePhoto ? (
+              {profile.profilePhoto || profile.profileImageUrl ? (
                 <img
-                  src={profile.profilePhoto}
+                  src={profile.profilePhoto || profile.profileImageUrl}
                   alt={profile.fullName || "Profile"}
                   className="portfolio-avatar"
                 />

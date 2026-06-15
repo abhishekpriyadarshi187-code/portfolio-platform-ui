@@ -20,7 +20,7 @@ const emptyProfile = {
   headline: "",
   about: "",
   profilePhoto: "",
-  profilePhotoFile: null,
+  profileImageUrl: "",
   skills: [],
   experiences: [],
   projects: [],
@@ -51,18 +51,9 @@ function ProfileBuilder() {
 
       if (data) {
         setProfile({
-          fullName: data.fullName || "",
-          email: data.email || "",
-          headline: data.headline || "",
-          about: data.about || "",
-          profilePhoto: data.profilePhoto || "",
-          profilePhotoFile: null,
-          skills: data.skills || [],
-          experiences: data.experiences || [],
-          projects: data.projects || [],
-          education: data.education || [],
-          achievements: data.achievements || [],
-          socialLinks: data.socialLinks || [],
+          ...data,
+          profilePhoto: data.profileImageUrl || "",
+          profileImageUrl: data.profileImageUrl || "",
         });
 
         setIsExistingProfile(true);

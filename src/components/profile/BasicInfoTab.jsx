@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import "../../styles/profile/BasicInfoTab.css";
+import { uploadProfileImage } from "../../services/profileService";
 
 function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
   const fileInputRef = useRef(null);
@@ -17,7 +18,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
     fileInputRef.current?.click();
   };
 
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -38,15 +39,27 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
     setProfile((prev) => ({
       ...prev,
       profilePhoto: localPreviewUrl,
-      profilePhotoFile: file,
     }));
+
+    try {
+      const response = await uploadProfileImage(file);
+
+      setProfile((prev) => ({
+        ...prev,
+        profilePhoto: response?.profileImageUrl || localPreviewUrl,
+        profileImageUrl: response?.profileImageUrl || "",
+      }));
+    } catch (error) {
+      console.error("Failed to upload profile image:", error);
+      alert(error.message || "Failed to upload profile image");
+    }
   };
 
   const handleRemovePhoto = () => {
     setProfile((prev) => ({
       ...prev,
       profilePhoto: "",
-      profilePhotoFile: null,
+      profileImageUrl: "",
     }));
 
     if (fileInputRef.current) {
@@ -66,9 +79,9 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
 
         <div className="photo-row">
           <div className="photo-preview">
-            {profile.profilePhoto ? (
+            {profile.profilePhoto || profile.profileImageUrl ? (
               <img
-                src={profile.profilePhoto}
+                src={profile.profilePhoto || profile.profileImageUrl}
                 alt="Profile Preview"
                 className="photo-image"
               />
@@ -94,7 +107,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
               Upload Photo
             </button>
 
-            {profile.profilePhoto && (
+            {(profile.profilePhoto || profile.profileImageUrl) && (
               <button
                 type="button"
                 className="remove-btn"

@@ -9,13 +9,7 @@ const getAuthHeaders = () => {
   };
 };
 
-export const createProfile = async (profileData) => {
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(profileData),
-  });
-
+const parseResponseData = async (response) => {
   const text = await response.text();
 
   let data = null;
@@ -35,27 +29,53 @@ export const createProfile = async (profileData) => {
   return data;
 };
 
+const normalizeProfileData = (data) => {
+  if (!data || typeof data !== "object") {
+    return data;
+  }
+
+  return {
+    ...data,
+    profileImageUrl: data.profileImageUrl || "",
+    profilePhoto: data.profilePhoto || data.profileImageUrl || "",
+  };
+};
+
+export const createProfile = async (profileData) => {
+  const response = await fetch(BASE_URL, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(profileData),
+  });
+
+  const data = await parseResponseData(response);
+  return normalizeProfileData(data);
+};
+
 export const getProfile = async () => {
   const response = await fetch(BASE_URL, {
     method: "GET",
     headers: getAuthHeaders(),
   });
 
-  const text = await response.text();
+  const data = await parseResponseData(response);
+  return normalizeProfileData(data);
+};
 
-  let data = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
+export const uploadProfileImage = async (file) => {
+  const token = localStorage.getItem("token");
 
-  if (!response.ok) {
-    throw new Error(
-      (typeof data === "object" && data?.message) ||
-        `Request failed with status ${response.status}`
-    );
-  }
+  const formData = new FormData();
+  formData.append("file", file);
 
-  return data;
+  const response = await fetch(`${BASE_URL}/image`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await parseResponseData(response);
+  return normalizeProfileData(data);
 };

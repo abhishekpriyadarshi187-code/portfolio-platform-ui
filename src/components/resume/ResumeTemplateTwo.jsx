@@ -1,12 +1,14 @@
 import "../../styles/resume/ResumeTemplateTwo.css";
 
 function ResumeTemplateTwo({ data }) {
+  const profileImageSrc = data.profilePhoto || data.profileImageUrl;
+
   return (
     <div className="rt2-shell">
       <aside className="rt2-sidebar">
         <div className="rt2-photo-card">
-          {data.profilePhoto ? (
-            <img src={data.profilePhoto} alt="Profile" className="rt2-photo" />
+          {profileImageSrc ? (
+            <img src={profileImageSrc} alt="Profile" className="rt2-photo" />
           ) : (
             <div className="rt2-photo rt2-photo-placeholder">👤</div>
           )}
