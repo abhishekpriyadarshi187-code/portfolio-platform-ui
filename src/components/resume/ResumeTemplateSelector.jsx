@@ -10,6 +10,12 @@ function ResumeTemplateSelector({ selectedTemplate, onSelect }) {
       title: "Modern With Image",
       description: "Visual layout with profile image and premium styling.",
     },
+    {
+      id: "template3",
+      title: "Executive Professional",
+      description:
+        "Premium ATS-friendly executive resume for senior engineers and architects.",
+    },
   ];
 
   return (

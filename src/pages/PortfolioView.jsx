@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/portfolio/PortfolioView.css";
+import { logout } from "../utils/auth";
 import { getTheme, setTheme } from "../utils/theme";
 
 const emptyProfile = {
@@ -35,9 +36,10 @@ function PortfolioView({ isOwner = true }) {
     [profile?.experiences]
   );
   const featuredSkills = useMemo(
-    () => (profile?.skills || []).slice(0, 7),
+    () => (profile?.skills || []).filter((skill) => skill?.name?.trim()).slice(0, 6),
     [profile?.skills]
   );
+  const extraSkillCount = Math.max(0, (profile?.skills || []).filter((skill) => skill?.name?.trim()).length - 6);
   const heroTechStack = useMemo(() => {
     const skills = (profile?.skills || [])
       .map((skill) => skill?.name?.trim())
@@ -89,6 +91,10 @@ function PortfolioView({ isOwner = true }) {
 
     return items;
   }, [profile]);
+  const primarySocialLink = useMemo(
+    () => (profile?.socialLinks || []).find((link) => link?.url) || null,
+    [profile?.socialLinks]
+  );
 
   useEffect(() => {
     fetchProfile();
@@ -201,6 +207,14 @@ function PortfolioView({ isOwner = true }) {
     navigate("/resume");
   };
 
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (!confirmLogout) return;
+
+    logout();
+    navigate("/");
+  };
+
   if (loading) {
     return (
       <div className="portfolio-loading-page">
@@ -230,6 +244,11 @@ function PortfolioView({ isOwner = true }) {
               </a>
             ))}
           </nav>
+          {isOwner && (
+            <button className="portfolio-logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          )}
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === "light" ? "🌙" : "☀️"}
           </button>
@@ -252,40 +271,47 @@ function PortfolioView({ isOwner = true }) {
                 )}
               </div>
 
-              {(primaryEducation || experienceYears || (profile?.socialLinks || []).length > 0) && (
+              {(primaryEducation || experienceYears || primarySocialLink) && (
                 <div className="portfolio-identity-stack">
                   {primaryEducation && (
-                    <div className="portfolio-education-badge">
-                      <strong>{primaryEducation.degreeLine}</strong>
-                      {primaryEducation.institutionLine && (
-                        <span>{primaryEducation.institutionLine}</span>
-                      )}
+                    <div className="portfolio-identity-card">
+                      <span className="portfolio-identity-icon" aria-hidden="true">🎓</span>
+                      <div className="portfolio-identity-copy">
+                        <strong>{primaryEducation.degreeLine}</strong>
+                        {primaryEducation.institutionLine && (
+                          <span>{primaryEducation.institutionLine}</span>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  <div className="portfolio-identity-chips">
-                    {experienceYears && (
-                      <span className="portfolio-meta-chip">
-                      {experienceYears}+ years experience
+                  {experienceYears && (
+                    <div className="portfolio-identity-card">
+                      <span className="portfolio-identity-icon" aria-hidden="true">💼</span>
+                      <div className="portfolio-identity-copy">
+                        <strong>{experienceYears}+ Years Experience</strong>
+                        <span>Building scalable systems</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {primarySocialLink && (
+                    <a
+                      href={primarySocialLink.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="portfolio-identity-card portfolio-identity-card-link"
+                    >
+                      <span className="portfolio-identity-icon" aria-hidden="true">
+                        {(primarySocialLink.platform || "").toLowerCase().includes("linkedin") ? "in" : "↗"}
                       </span>
-                    )}
-                  </div>
-
-                  {(profile?.socialLinks || []).length > 0 && (
-                    <div className="portfolio-identity-links">
-                      {profile.socialLinks.slice(0, 1).map((link, index) => (
-                        <a
-                          key={`${link?.platform || "social"}-identity-${index}`}
-                          href={link?.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="portfolio-social-pill portfolio-social-pill-compact"
-                        >
-                          {link?.platform || "Link"}
-                        </a>
-                      ))}
-                    </div>
+                      <div className="portfolio-identity-copy">
+                        <strong>{primarySocialLink.platform || "Social"}</strong>
+                        <span>View Profile</span>
+                      </div>
+                    </a>
                   )}
+
                 </div>
               )}
             </div>
@@ -298,9 +324,14 @@ function PortfolioView({ isOwner = true }) {
               <p className="portfolio-tech-stack">{heroTechStack}</p>
 
               {profile?.email && (
-                <a className="portfolio-email-link" href={`mailto:${profile.email}`}>
-                  {profile.email}
-                </a>
+                <div className="portfolio-contact-row">
+                  {profile?.email && (
+                    <a className="portfolio-contact-link" href={`mailto:${profile.email}`}>
+                      <span aria-hidden="true">✉</span>
+                      <span>{profile.email}</span>
+                    </a>
+                  )}
+                </div>
               )}
 
               {featuredSkills.length > 0 && (
@@ -310,6 +341,9 @@ function PortfolioView({ isOwner = true }) {
                       {skill?.name}
                     </span>
                   ))}
+                  {extraSkillCount > 0 && (
+                    <span className="portfolio-meta-chip portfolio-meta-chip-more">+{extraSkillCount}</span>
+                  )}
                 </div>
               )}
             </div>
@@ -321,21 +355,23 @@ function PortfolioView({ isOwner = true }) {
               <span className="portfolio-hero-note-label">Professional Summary</span>
               <p>{heroSummary}</p>
               <div className="portfolio-hero-note-tags">
-                <span className="portfolio-chip subtle">Backend Systems</span>
-                <span className="portfolio-chip subtle">Platform Thinking</span>
-                <span className="portfolio-chip subtle">Product Delivery</span>
-                <span className="portfolio-chip subtle">Cloud Architecture</span>
+                <span className="portfolio-chip subtle">⚙ Backend Systems</span>
+                <span className="portfolio-chip subtle">🧠 Platform Thinking</span>
+                <span className="portfolio-chip subtle">🚀 Product Delivery</span>
+                <span className="portfolio-chip subtle">☁ Cloud Architecture</span>
               </div>
             </div>
 
             <div className="portfolio-hero-actions">
               <button className="portfolio-primary-btn" onClick={handleResumeClick}>
-                Download Resume
+                <span aria-hidden="true">⬇</span>
+                <span>Download Resume</span>
               </button>
 
               {isOwner && (
                 <button className="portfolio-secondary-btn" onClick={handleEditProfile}>
-                  Edit Profile
+                  <span aria-hidden="true">✎</span>
+                  <span>Edit Profile</span>
                 </button>
               )}
             </div>

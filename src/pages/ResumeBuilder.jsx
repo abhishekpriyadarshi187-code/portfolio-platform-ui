@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import ResumeTemplateSelector from "../components/resume/ResumeTemplateSelector";
 import ResumePreview from "../components/resume/ResumePreview";
@@ -9,9 +10,11 @@ import {
   uploadResumePdf,
 } from "../services/resumeService";
 import { getProfile, getProfileImageBase64 } from "../services/profileService";
+import { logout } from "../utils/auth";
 import "../styles/resume/ResumeBuilder.css";
 
 function ResumeBuilder() {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("template1");
   const [loading, setLoading] = useState(true);
@@ -122,6 +125,14 @@ function ResumeBuilder() {
     }
   };
 
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (!confirmLogout) return;
+
+    logout();
+    navigate("/");
+  };
+
   if (loading) {
     return <div className="resume-builder-page">Loading resume builder...</div>;
   }
@@ -135,6 +146,9 @@ function ResumeBuilder() {
             <h1>Resume Builder</h1>
             <p>Create and export professional resumes from your portfolio.</p>
           </div>
+          <button className="resume-builder-logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </header>
 
         <div className="resume-builder-workspace">

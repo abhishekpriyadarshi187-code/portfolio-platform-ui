@@ -45,11 +45,32 @@ body {
 }
 
 .resume-builder-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
   margin-bottom: 24px;
 }
 
 .resume-builder-heading {
   max-width: 720px;
+}
+
+.resume-builder-logout-btn {
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  background: #ffffff;
+  color: #dc2626;
+  padding: 11px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.resume-builder-logout-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .resume-builder-kicker,
@@ -314,6 +335,11 @@ body {
 
   .resume-builder-sidebar {
     gap: 16px;
+  }
+
+  .resume-builder-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .resume-preview-stage-header {
