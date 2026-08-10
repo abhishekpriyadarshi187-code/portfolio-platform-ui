@@ -153,7 +153,7 @@ function ExperienceTab({ profile, setProfile }) {
                 <div className="experience-field">
                   <label>Start Date</label>
                   <input
-                    type="date"
+                    type="month"
                     value={experience.startDate}
                     onChange={(e) =>
                       handleExperienceChange(
@@ -168,7 +168,7 @@ function ExperienceTab({ profile, setProfile }) {
                 <div className="experience-field">
                   <label>End Date</label>
                   <input
-                    type="date"
+                    type="month"
                     value={experience.endDate}
                     disabled={experience.current}
                     onChange={(e) =>
@@ -245,8 +245,8 @@ function ExperienceTab({ profile, setProfile }) {
             <div className="experience-display-top">
               <h3>{experience.role}</h3>
               <span className="experience-duration">
-                {experience.startDate} -{" "}
-                {experience.current ? "Present" : experience.endDate}
+                {formatMonthYear(experience.startDate)} -{" "}
+                {experience.current ? "Present" : formatMonthYear(experience.endDate)}
               </span>
             </div>
 
@@ -277,6 +277,25 @@ function ExperienceTab({ profile, setProfile }) {
       </div>
     </div>
   );
+}
+
+function formatMonthYear(value) {
+  if (!value) return "";
+
+  const [year, month] = value.split("-");
+  if (!year || !month) {
+    return value;
+  }
+
+  const date = new Date(`${year}-${month}-01`);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export default ExperienceTab;

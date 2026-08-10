@@ -98,6 +98,15 @@ function ResumeBuilder() {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, allowTaint: false },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          avoid: [
+            ".rt1-avoid-break",
+            ".rt1-project-entry",
+            ".rt1-bullet-list",
+            ".rt1-bullet-list li",
+          ],
+        },
       }).from(element);
 
       const pdfBlob = await worker.outputPdf("blob");
@@ -133,6 +142,10 @@ function ResumeBuilder() {
     navigate("/");
   };
 
+  const handleBackToPortfolio = () => {
+    navigate("/portfolio");
+  };
+
   if (loading) {
     return <div className="resume-builder-page">Loading resume builder...</div>;
   }
@@ -146,9 +159,17 @@ function ResumeBuilder() {
             <h1>Resume Builder</h1>
             <p>Create and export professional resumes from your portfolio.</p>
           </div>
-          <button className="resume-builder-logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="resume-builder-header-actions">
+            <button
+              className="resume-builder-back-btn"
+              onClick={handleBackToPortfolio}
+            >
+              Back to Portfolio
+            </button>
+            <button className="resume-builder-logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </header>
 
         <div className="resume-builder-workspace">

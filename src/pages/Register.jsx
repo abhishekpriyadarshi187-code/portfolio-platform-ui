@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { registerUser } from "../services/authService";
+import { loginUser, registerUser } from "../services/authService";
 import "./Login.css"; // reuse same CSS
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -17,11 +18,27 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await registerUser(form);
-      console.log(res);
-      alert("Registration successful ✅");
+      await registerUser(form);
     } catch (err) {
-      alert(err.message);
+      alert(`Registration failed: ${err.message}`);
+      return;
+    }
+
+    try {
+      const loginResponse = await loginUser({
+        email: form.email,
+        password: form.password,
+      });
+
+      if (!loginResponse?.token) {
+        throw new Error("Login response did not include a token");
+      }
+
+      localStorage.setItem("token", loginResponse.token);
+      alert("Registration successful ✅");
+      navigate("/profile");
+    } catch (err) {
+      alert(`Registration succeeded, but auto-login failed: ${err.message}`);
     }
   };
 

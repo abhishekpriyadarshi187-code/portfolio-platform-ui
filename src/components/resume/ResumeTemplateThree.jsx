@@ -1,9 +1,10 @@
 import "../../styles/resume/ResumeTemplateThree.css";
+import { categorizeSkillsAsObject } from "../../utils/skillCategories";
 
 function ResumeTemplateThree({ data }) {
   const imageSrc = data?.profileImageUrl || data?.profilePhoto || "";
   const skills = (data?.skills || []).filter((skill) => skill?.name?.trim());
-  const skillGroups = categorizeSkills(skills);
+  const skillGroups = categorizeSkillsAsObject(skills);
   const topSkills = skills.slice(0, 5);
   const techSummary = topSkills.map((skill) => skill.name).join(" • ");
   const experienceYears = getExperienceYears(data?.experiences || []);
@@ -295,28 +296,6 @@ function getDegreeScore(degree = "") {
   if (normalized.includes("b.tech") || normalized.includes("bachelor") || normalized.includes("b.e")) return 3;
   if (normalized.includes("diploma")) return 2;
   return 1;
-}
-
-function categorizeSkills(skills) {
-  const groups = {
-    Backend: [],
-    "Cloud & DevOps": [],
-    Frontend: [],
-    Databases: [],
-    Tools: [],
-  };
-
-  skills.forEach((skill) => {
-    const name = skill?.name?.toLowerCase() || "";
-    if (!name) return;
-    if (/(java|spring|kafka|backend|api|microservice)/.test(name)) return groups.Backend.push(skill);
-    if (/(aws|docker|kubernetes|cloud|terraform|devops|jenkins)/.test(name)) return groups["Cloud & DevOps"].push(skill);
-    if (/(react|frontend|javascript|typescript|angular|vue)/.test(name)) return groups.Frontend.push(skill);
-    if (/(mongo|postgres|mysql|oracle|redis|database)/.test(name)) return groups.Databases.push(skill);
-    groups.Tools.push(skill);
-  });
-
-  return Object.fromEntries(Object.entries(groups).filter(([, items]) => items.length > 0));
 }
 
 function formatFieldOfStudy(field = "") {

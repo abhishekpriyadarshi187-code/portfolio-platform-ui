@@ -2,8 +2,8 @@ function ResumeTemplateSelector({ selectedTemplate, onSelect }) {
   const templates = [
     {
       id: "template1",
-      title: "Classic Professional",
-      description: "Clean two-column resume for strong readability.",
+      title: "ATS Standard",
+      description: "Single-column ATS-friendly resume for job applications.",
     },
     {
       id: "template2",
