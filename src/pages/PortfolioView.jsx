@@ -3,14 +3,23 @@ import { useNavigate } from "react-router-dom";
 import "../styles/portfolio/PortfolioView.css";
 import { logout } from "../utils/auth";
 import { getTheme, setTheme } from "../utils/theme";
+import {
+  getProfileImageObjectPosition,
+  normalizeProfileImagePosition,
+} from "../utils/profileImagePosition";
 
 const emptyProfile = {
   fullName: "",
   headline: "",
+  professionalSummary: "",
   about: "",
   email: "",
+  mobileNumber: "",
+  selectedHighlightTags: [],
+  suggestedHighlightTags: [],
   profilePhoto: "",
   profileImageUrl: "",
+  profileImagePosition: "top",
   skills: [],
   experiences: [],
   projects: [],
@@ -27,6 +36,10 @@ function PortfolioView({ isOwner = true }) {
   const [theme, setThemeState] = useState("light");
 
   const imageSrc = profile?.profilePhoto || profile?.profileImageUrl || "";
+  const imagePosition = useMemo(
+    () => getProfileImageObjectPosition(profile?.profileImagePosition),
+    [profile?.profileImagePosition]
+  );
   const primaryEducation = useMemo(
     () => getPrimaryEducation(profile?.education || []),
     [profile?.education]
@@ -57,17 +70,48 @@ function PortfolioView({ isOwner = true }) {
     [profile?.headline]
   );
   const heroSummary = useMemo(() => {
+    const professionalSummary = profile?.professionalSummary?.trim() || "";
     const about = profile?.about?.trim() || "";
-    if (!about) {
+    const sourceText = professionalSummary || about;
+
+    if (!sourceText) {
       return "Building reliable products, scalable backend systems, and developer-friendly experiences.";
     }
 
-    if (about.length <= 220) {
-      return about;
+    if (sourceText.length <= 220) {
+      return sourceText;
     }
 
-    return `${about.slice(0, 217).trim()}...`;
-  }, [profile?.about]);
+    return `${sourceText.slice(0, 217).trim()}...`;
+  }, [profile?.professionalSummary, profile?.about]);
+  const shouldShowAboutSection = useMemo(() => {
+    const about = profile?.about?.trim() || "";
+    const professionalSummary = profile?.professionalSummary?.trim() || "";
+
+    if (!about) {
+      return false;
+    }
+
+    if (!professionalSummary) {
+      return true;
+    }
+
+    return about !== professionalSummary;
+  }, [profile?.about, profile?.professionalSummary]);
+  const heroHighlightTags = useMemo(() => {
+    const selected = (profile?.selectedHighlightTags || [])
+      .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
+      .filter(Boolean);
+
+    if (selected.length > 0) {
+      return selected.slice(0, 6);
+    }
+
+    return (profile?.suggestedHighlightTags || [])
+      .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
+      .filter(Boolean)
+      .slice(0, 6);
+  }, [profile?.selectedHighlightTags, profile?.suggestedHighlightTags]);
   const contactItems = useMemo(() => {
     const links = profile?.socialLinks || [];
     const items = [];
@@ -77,6 +121,14 @@ function PortfolioView({ isOwner = true }) {
         label: "Email",
         value: profile.email,
         href: `mailto:${profile.email}`,
+      });
+    }
+
+    if (profile?.mobileNumber) {
+      items.push({
+        label: "Mobile",
+        value: profile.mobileNumber,
+        href: `tel:${profile.mobileNumber.replace(/\s+/g, "")}`,
       });
     }
 
@@ -154,6 +206,7 @@ function PortfolioView({ isOwner = true }) {
               ...data,
               profilePhoto: data.profileImageUrl || "",
               profileImageUrl: data.profileImageUrl || "",
+              profileImagePosition: normalizeProfileImagePosition(data.profileImagePosition),
             }
           : emptyProfile
       );
@@ -168,7 +221,7 @@ function PortfolioView({ isOwner = true }) {
   const sections = useMemo(
     () =>
       [
-        { id: "about", label: "About", visible: !!profile?.about },
+        { id: "about", label: "About", visible: shouldShowAboutSection },
         { id: "skills", label: "Skills", visible: (profile?.skills || []).length > 0 },
         {
           id: "experience",
@@ -196,7 +249,7 @@ function PortfolioView({ isOwner = true }) {
           visible: contactItems.length > 0,
         },
       ].filter((section) => section.visible),
-    [contactItems.length, profile]
+    [contactItems.length, profile, shouldShowAboutSection]
   );
 
   const handleEditProfile = () => {
@@ -265,6 +318,7 @@ function PortfolioView({ isOwner = true }) {
                     src={imageSrc}
                     alt={profile?.fullName || "Profile"}
                     className="portfolio-avatar"
+                    style={{ objectPosition: imagePosition }}
                   />
                 ) : (
                   <div className="portfolio-avatar-placeholder">👤</div>
@@ -325,12 +379,22 @@ function PortfolioView({ isOwner = true }) {
 
               {profile?.email && (
                 <div className="portfolio-contact-row">
-                  {profile?.email && (
-                    <a className="portfolio-contact-link" href={`mailto:${profile.email}`}>
-                      <span aria-hidden="true">✉</span>
-                      <span>{profile.email}</span>
-                    </a>
-                  )}
+                  <a className="portfolio-contact-link" href={`mailto:${profile.email}`}>
+                    <span aria-hidden="true">✉</span>
+                    <span>{profile.email}</span>
+                  </a>
+                </div>
+              )}
+
+              {profile?.mobileNumber && (
+                <div className="portfolio-contact-row">
+                  <a
+                    className="portfolio-contact-link"
+                    href={`tel:${profile.mobileNumber.replace(/\s+/g, "")}`}
+                  >
+                    <span aria-hidden="true">📱</span>
+                    <span>{profile.mobileNumber}</span>
+                  </a>
                 </div>
               )}
 
@@ -354,12 +418,15 @@ function PortfolioView({ isOwner = true }) {
             <div className="portfolio-hero-note">
               <span className="portfolio-hero-note-label">Professional Summary</span>
               <p>{heroSummary}</p>
-              <div className="portfolio-hero-note-tags">
-                <span className="portfolio-chip subtle">⚙ Backend Systems</span>
-                <span className="portfolio-chip subtle">🧠 Platform Thinking</span>
-                <span className="portfolio-chip subtle">🚀 Product Delivery</span>
-                <span className="portfolio-chip subtle">☁ Cloud Architecture</span>
-              </div>
+              {heroHighlightTags.length > 0 && (
+                <div className="portfolio-hero-note-tags">
+                  {heroHighlightTags.map((tag) => (
+                    <span key={tag} className="portfolio-chip subtle">
+                      {getHighlightTagIcon(tag)} {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="portfolio-hero-actions">
@@ -379,7 +446,7 @@ function PortfolioView({ isOwner = true }) {
           </div>
         </section>
 
-        {profile?.about && (
+        {shouldShowAboutSection && (
           <section id="about" className="portfolio-section">
             <div className="portfolio-section-heading">
               <span className="portfolio-section-kicker">Introduction</span>
@@ -717,6 +784,21 @@ function getDegreeScore(degree = "") {
   if (normalizedDegree.includes("b.tech") || normalizedDegree.includes("bachelor") || normalizedDegree.includes("b.e")) return 3;
   if (normalizedDegree.includes("diploma")) return 2;
   return 1;
+}
+
+function getHighlightTagIcon(tag = "") {
+  const normalized = tag.toLowerCase();
+
+  if (/(backend|api|microservice|system)/.test(normalized)) return "⚙";
+  if (/(platform|architecture|design)/.test(normalized)) return "🧠";
+  if (/(product|delivery|execution)/.test(normalized)) return "🚀";
+  if (/(cloud|devops|infra)/.test(normalized)) return "☁";
+  if (/(frontend|ui)/.test(normalized)) return "🖥";
+  if (/(database|data)/.test(normalized)) return "🗄";
+  if (/(testing|quality)/.test(normalized)) return "✅";
+  if (/(ai|ml|llm)/.test(normalized)) return "🤖";
+
+  return "•";
 }
 
 export default PortfolioView;

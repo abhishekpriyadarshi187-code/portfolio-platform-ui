@@ -1,7 +1,9 @@
 import "../../styles/resume/ResumeTemplateTwo.css";
+import { getProfileImageObjectPosition } from "../../utils/profileImagePosition";
 
 function ResumeTemplateTwo({ data }) {
   const imageSrc = data.profileImageUrl || data.profilePhoto || "";
+  const imagePosition = getProfileImageObjectPosition(data.profileImagePosition);
   const skills = (data.skills || []).filter((skill) => skill?.name?.trim());
   const techSummary = skills
     .slice(0, 5)
@@ -9,6 +11,7 @@ function ResumeTemplateTwo({ data }) {
     .filter(Boolean)
     .join(" • ");
   const summaryText =
+    data.professionalSummary ||
     data.about ||
     "Backend engineer focused on scalable APIs, microservices, and clean production-ready systems.";
 
@@ -18,7 +21,12 @@ function ResumeTemplateTwo({ data }) {
         <div className="rt2-sidebar-inner">
           <div className="rt2-profile-block">
             {imageSrc ? (
-              <img src={imageSrc} alt="Profile" className="rt2-photo" />
+              <img
+                src={imageSrc}
+                alt="Profile"
+                className="rt2-photo"
+                style={{ objectPosition: imagePosition }}
+              />
             ) : (
               <div className="rt2-photo rt2-photo-placeholder">👤</div>
             )}
@@ -31,7 +39,7 @@ function ResumeTemplateTwo({ data }) {
             </div>
           </div>
 
-          {(data.email || (data.socialLinks || []).length > 0) && (
+          {(data.email || data.mobileNumber || (data.socialLinks || []).length > 0) && (
             <div className="rt2-side-section">
               <h3>Contact</h3>
               <div className="rt2-contact-list">
@@ -41,6 +49,16 @@ function ResumeTemplateTwo({ data }) {
                     <div className="rt2-contact-copy">
                       <strong>Email</strong>
                       <span>{data.email}</span>
+                    </div>
+                  </div>
+                )}
+
+                {data.mobileNumber && (
+                  <div className="rt2-contact-item">
+                    <span className="rt2-contact-icon">☎</span>
+                    <div className="rt2-contact-copy">
+                      <strong>Mobile</strong>
+                      <span>{data.mobileNumber}</span>
                     </div>
                   </div>
                 )}
@@ -65,18 +83,6 @@ function ResumeTemplateTwo({ data }) {
                 {skills.map((skill, index) => (
                   <div key={index} className="rt2-skill-item">
                     <strong>{skill.name}</strong>
-                    {(skill.level || skill.yearsOfExperience) && (
-                      <span>
-                        {[
-                          skill.level ? formatLevel(skill.level) : "",
-                          skill.yearsOfExperience
-                            ? `${skill.yearsOfExperience} yr${skill.yearsOfExperience > 1 ? "s" : ""}`
-                            : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" • ")}
-                      </span>
-                    )}
                   </div>
                 ))}
               </div>
@@ -240,12 +246,6 @@ function formatDate(dateString) {
     month: "short",
     year: "numeric",
   });
-}
-
-function formatLevel(level = "") {
-  const normalized = level.trim();
-  if (!normalized) return "";
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
 }
 
 function getContactIcon(platform = "") {

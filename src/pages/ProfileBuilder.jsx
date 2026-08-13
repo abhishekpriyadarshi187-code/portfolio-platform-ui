@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import BasicInfoTab from "../components/profile/BasicInfoTab";
+import ProfileContentTab from "../components/profile/ProfileContentTab";
 import SkillsTab from "../components/profile/SkillsTab";
 import ExperienceTab from "../components/profile/ExperienceTab";
 import ProjectsTab from "../components/profile/ProjectsTab";
@@ -11,16 +12,22 @@ import SocialLinksTab from "../components/profile/SocialLinksTab";
 
 import { createProfile, getProfile } from "../services/profileService";
 import { logout } from "../utils/auth";
+import { normalizeProfileImagePosition } from "../utils/profileImagePosition";
 
 import "../styles/profile/ProfileBuilder.css";
 
 const emptyProfile = {
   fullName: "",
   email: "",
+  mobileNumber: "",
   headline: "",
+  professionalSummary: "",
   about: "",
+  selectedHighlightTags: [],
+  suggestedHighlightTags: [],
   profilePhoto: "",
   profileImageUrl: "",
+  profileImagePosition: "top",
   skills: [],
   experiences: [],
   projects: [],
@@ -54,6 +61,7 @@ function ProfileBuilder() {
           ...data,
           profilePhoto: data.profileImageUrl || "",
           profileImageUrl: data.profileImageUrl || "",
+          profileImagePosition: normalizeProfileImagePosition(data.profileImagePosition),
         });
 
         setIsExistingProfile(true);
@@ -74,6 +82,12 @@ function ProfileBuilder() {
     about: profileData.about?.trim() || "",
     fullName: profileData.fullName?.trim() || "",
     headline: profileData.headline?.trim() || "",
+    mobileNumber: profileData.mobileNumber?.trim() || "",
+    profileImagePosition: normalizeProfileImagePosition(profileData.profileImagePosition),
+    professionalSummary: profileData.professionalSummary?.trim() || "",
+    selectedHighlightTags: (profileData.selectedHighlightTags || [])
+      .map((tag) => tag?.trim())
+      .filter(Boolean),
 
     skills: (profileData.skills || []).map((skill) => ({
       name: skill.name?.trim() || "",
@@ -177,6 +191,9 @@ function ProfileBuilder() {
       case "skills":
         return <SkillsTab profile={profile} setProfile={setProfile} />;
 
+      case "content":
+        return <ProfileContentTab profile={profile} setProfile={setProfile} />;
+
       case "experience":
         return <ExperienceTab profile={profile} setProfile={setProfile} />;
 
@@ -252,6 +269,13 @@ function ProfileBuilder() {
             onClick={() => setActiveTab("basic")}
           >
             Basic Info
+          </div>
+
+          <div
+            className={activeTab === "content" ? "active" : ""}
+            onClick={() => setActiveTab("content")}
+          >
+            Profile Content
           </div>
 
           <div

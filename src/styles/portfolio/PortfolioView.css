@@ -12,19 +12,20 @@ body,
 }
 
 :root {
-  --portfolio-bg: #f7f9fc;
-  --portfolio-surface: rgba(255, 255, 255, 0.8);
+  --portfolio-bg: #f7f2eb;
+  --portfolio-surface: rgba(255, 255, 255, 0.82);
   --portfolio-card: #ffffff;
-  --portfolio-card-soft: #ffffff;
-  --portfolio-border: rgba(79, 70, 229, 0.12);
+  --portfolio-card-soft: #fbfaf7;
+  --portfolio-border: rgba(49, 46, 129, 0.12);
   --portfolio-border-soft: rgba(15, 23, 42, 0.08);
-  --portfolio-text: #0f172a;
-  --portfolio-text-muted: #64748b;
-  --portfolio-accent: #4f46e5;
-  --portfolio-accent-soft: #eef2ff;
-  --portfolio-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
-  --portfolio-navbar-height: 86px;
-  --portfolio-max-width: 1400px;
+  --portfolio-text: #111827;
+  --portfolio-text-muted: #5f6b7a;
+  --portfolio-accent: #2f348c;
+  --portfolio-accent-soft: #edf5f6;
+  --portfolio-shadow: 0 24px 56px rgba(15, 23, 42, 0.08);
+  --portfolio-navbar-height: 80px;
+  --portfolio-max-width: 1320px;
+  --portfolio-rail: #2f3f4e;
 }
 
 body.dark {
@@ -48,6 +49,10 @@ body.dark {
 body {
   background: var(--portfolio-bg);
   color: var(--portfolio-text);
+  background-image:
+    linear-gradient(180deg, rgba(255, 247, 251, 0.96), rgba(245, 241, 235, 0.98)),
+    linear-gradient(140deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15)),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.72), transparent 32%);
 }
 
 #root {
@@ -72,6 +77,36 @@ button {
 .portfolio-page {
   min-height: 100vh;
   background: var(--portfolio-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-page::before,
+.portfolio-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.portfolio-page::before {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.96), transparent 20%),
+    radial-gradient(circle at 36% 14%, rgba(255, 255, 255, 0.88), transparent 17%),
+    radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.86), transparent 20%),
+    radial-gradient(circle at 88% 60%, rgba(246, 241, 231, 0.9), transparent 22%),
+    radial-gradient(circle at 12% 76%, rgba(255, 255, 255, 0.64), transparent 18%);
+  opacity: 1;
+}
+
+.portfolio-page::after {
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0) 24%),
+    linear-gradient(320deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 20%),
+    linear-gradient(164deg, transparent 0 68%, rgba(209, 213, 219, 0.24) 68.5%, transparent 69.5%),
+    linear-gradient(164deg, transparent 0 72%, rgba(255, 255, 255, 0.84) 72.5%, transparent 73.5%);
+  opacity: 1;
 }
 
 .portfolio-loading-page {
@@ -107,17 +142,18 @@ button {
   align-items: center;
   gap: 24px;
   min-height: var(--portfolio-navbar-height);
-  padding: 16px 36px;
+  padding: 14px 24px;
   background: var(--portfolio-surface);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--portfolio-border-soft);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
 }
 
 .portfolio-brand {
-  font-size: 1.4rem;
+  font-size: 1.18rem;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   color: var(--portfolio-text);
 }
 
@@ -136,9 +172,9 @@ button {
 
 .portfolio-nav-links a {
   text-decoration: none;
-  color: var(--portfolio-text-muted);
-  font-size: 0.95rem;
-  font-weight: 700;
+  color: var(--portfolio-text);
+  font-size: 0.92rem;
+  font-weight: 500;
   padding: 8px 0;
   position: relative;
 }
@@ -166,15 +202,15 @@ button {
 }
 
 .theme-toggle {
-  min-width: 54px;
-  min-height: 54px;
-  padding: 10px 12px;
-  border-radius: 18px;
-  border: 1px solid var(--portfolio-border);
+  min-width: 52px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
   background: var(--portfolio-card);
   color: var(--portfolio-text);
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.08);
+  box-shadow: none;
 }
 
 .portfolio-logout-btn {
@@ -197,21 +233,24 @@ button {
 .portfolio-main {
   width: min(100%, var(--portfolio-max-width));
   margin: 0 auto;
-  padding: 32px clamp(22px, 3vw, 44px) 72px;
+  padding: 26px clamp(22px, 3vw, 34px) 72px;
   background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .portfolio-hero-card {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1.28fr) minmax(340px, 0.92fr);
-  gap: 34px;
+  grid-template-columns: 278px minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 28px;
   align-items: start;
   min-height: 0;
-  padding: 34px 36px;
-  border-radius: 34px;
+  padding: 18px 22px 22px;
+  border-radius: 32px;
   background: var(--portfolio-card);
   border: 1px solid var(--portfolio-border-soft);
   box-shadow: var(--portfolio-shadow);
+  backdrop-filter: blur(12px);
 }
 
 .portfolio-hero-column {
@@ -230,27 +269,32 @@ button {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 16px;
+  gap: 12px;
   min-height: 100%;
+  padding: 14px;
+  border-radius: 24px;
+  background: var(--portfolio-rail);
 }
 
 .portfolio-avatar-shell {
   width: 100%;
-  height: 212px;
-  border-radius: 26px;
+  height: 228px;
+  border-radius: 20px;
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #c7d2fe, #eef2ff);
-  box-shadow: 0 16px 32px rgba(79, 70, 229, 0.12);
+  background: linear-gradient(145deg, #cfd8e3, #f5f7fb);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: none;
 }
 
 .portfolio-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 
 .portfolio-avatar-placeholder {
@@ -261,21 +305,21 @@ button {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   align-items: stretch;
 }
 
 .portfolio-identity-card {
   width: 100%;
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
+  grid-template-columns: 42px minmax(0, 1fr);
   gap: 12px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 20px;
-  background: var(--portfolio-card-soft);
-  border: 1px solid var(--portfolio-border-soft);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  align-items: start;
+  padding: 16px 14px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
 }
 
 .portfolio-identity-card-link {
@@ -284,15 +328,15 @@ button {
 }
 
 .portfolio-identity-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--portfolio-accent-soft);
-  color: var(--portfolio-accent);
-  font-size: 0.92rem;
+  background: #f3f6fb;
+  color: #5a6572;
+  font-size: 1.08rem;
   font-weight: 800;
 }
 
@@ -303,15 +347,15 @@ button {
 
 .portfolio-identity-copy strong {
   color: var(--portfolio-text);
-  font-size: 0.96rem;
+  font-size: 0.9rem;
   line-height: 1.28;
 }
 
 .portfolio-identity-copy span {
   margin-top: 3px;
-  color: var(--portfolio-text-muted);
-  font-size: 0.84rem;
-  font-weight: 600;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .portfolio-hero-content {
@@ -320,7 +364,7 @@ button {
   flex-direction: column;
   justify-content: flex-start;
   min-height: 100%;
-  padding-top: 8px;
+  padding-top: 18px;
 }
 
 .portfolio-kicker,
@@ -336,58 +380,51 @@ button {
 
 .portfolio-hero-content h1 {
   margin: 0;
-  font-size: clamp(2.75rem, 3.6vw, 3.35rem);
-  font-weight: 700;
-  line-height: 1.02;
+  font-size: clamp(3.1rem, 4vw, 4.1rem);
+  font-weight: 800;
+  line-height: 0.96;
   letter-spacing: -0.045em;
   color: var(--portfolio-text);
-  max-width: 14ch;
+  text-transform: uppercase;
+  max-width: 9ch;
 }
 
 .portfolio-headline {
-  margin: 14px 0 10px;
-  font-size: 1.1rem;
+  margin: 16px 0 18px;
+  font-size: 1rem;
   line-height: 1.4;
-  font-weight: 700;
-  color: var(--portfolio-accent);
+  font-weight: 500;
+  color: #444f5c;
 }
 
 .portfolio-tech-stack {
-  margin: 0 0 14px;
-  font-size: 0.96rem;
-  line-height: 1.6;
-  color: var(--portfolio-text-muted);
-  max-width: 34rem;
+  display: none;
 }
 
 .portfolio-contact-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
-  margin-bottom: 18px;
+  gap: 10px 18px;
+  margin-bottom: 16px;
 }
 
 .portfolio-contact-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--portfolio-text-muted);
+  color: #374151;
   text-decoration: none;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 0.92rem;
 }
 
 .portfolio-contact-link span:first-child {
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--portfolio-accent-soft);
-  color: var(--portfolio-accent);
-  font-size: 0.7rem;
-  font-weight: 900;
+  background: transparent;
+  color: #6b7280;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  font-size: 0.9rem;
 }
 
 .portfolio-contact-link:hover {
@@ -412,10 +449,11 @@ button {
 }
 
 .portfolio-meta-chip {
-  background: var(--portfolio-card);
-  border: 1px solid var(--portfolio-border-soft);
-  color: var(--portfolio-text);
-  padding: 10px 13px;
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  color: #374151;
+  padding: 9px 14px;
+  font-weight: 600;
 }
 
 .portfolio-meta-chip-more {
@@ -450,16 +488,16 @@ button {
 .portfolio-hero-side {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   justify-content: flex-start;
   min-height: 100%;
-  padding-top: 8px;
+  padding-top: 16px;
 }
 
 .portfolio-hero-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
 .portfolio-primary-btn,
@@ -469,9 +507,9 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 18px;
+  padding: 16px 18px;
   border-radius: 20px;
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
@@ -479,40 +517,40 @@ button {
 
 .portfolio-primary-btn,
 .portfolio-link-btn {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, #34388b, #20245d);
   color: #ffffff;
   border: none;
   text-decoration: none;
-  box-shadow: 0 14px 28px rgba(79, 70, 229, 0.24);
+  box-shadow: 0 14px 28px rgba(32, 36, 93, 0.26);
 }
 
 .portfolio-secondary-btn {
   background: var(--portfolio-card);
-  color: var(--portfolio-accent);
-  border: 1px solid var(--portfolio-border);
+  color: #111827;
+  border: 1px solid rgba(17, 24, 39, 0.12);
 }
 
 .portfolio-hero-note {
-  padding: 28px;
-  border-radius: 28px;
-  background: var(--portfolio-card);
-  border: 1px solid var(--portfolio-border-soft);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  padding: 24px 24px 20px;
+  border-radius: 26px;
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.07);
 }
 
 .portfolio-hero-note-label {
   display: inline-block;
-  margin-bottom: 10px;
-  font-size: 0.86rem;
+  margin-bottom: 14px;
+  font-size: 0.84rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--portfolio-accent);
+  letter-spacing: 0.03em;
+  color: #111827;
 }
 
 .portfolio-hero-note p {
   margin: 0;
-  color: var(--portfolio-text-muted);
+  color: #374151;
   line-height: 1.7;
   display: -webkit-box;
   -webkit-line-clamp: 4;
@@ -554,6 +592,21 @@ body.dark .portfolio-main {
   background: var(--portfolio-bg);
 }
 
+body.dark .portfolio-page::before {
+  background:
+    radial-gradient(circle at 10% 40%, rgba(99, 102, 241, 0.12), transparent 24%),
+    radial-gradient(circle at 88% 30%, rgba(148, 163, 184, 0.12), transparent 22%),
+    radial-gradient(circle at 15% 78%, rgba(71, 85, 105, 0.14), transparent 18%),
+    radial-gradient(circle at 90% 82%, rgba(99, 102, 241, 0.1), transparent 18%);
+}
+
+body.dark .portfolio-page::after {
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.05), transparent 24%),
+    linear-gradient(320deg, rgba(255, 255, 255, 0.04), transparent 20%),
+    linear-gradient(164deg, transparent 0 68%, rgba(148, 163, 184, 0.08) 68.5%, transparent 69.5%);
+}
+
 body.dark .portfolio-section-heading h2,
 body.dark .portfolio-brand,
 body.dark .portfolio-hero-content h1 {
@@ -565,11 +618,94 @@ body.dark .portfolio-kicker {
   color: #8ea0ff;
 }
 
+body.dark .portfolio-headline,
+body.dark .portfolio-about-text,
+body.dark .portfolio-card-text,
+body.dark .portfolio-skill-card p,
+body.dark .portfolio-duration,
+body.dark .portfolio-project-label,
+body.dark .portfolio-hero-note p,
+body.dark .portfolio-contact-link,
+body.dark .portfolio-identity-copy span {
+  color: #cbd5e1;
+}
+
+body.dark .portfolio-company-name,
+body.dark .portfolio-contact-label,
+body.dark .portfolio-meta-chip-more,
+body.dark .portfolio-skill-level {
+  color: #a5b4fc;
+}
+
+body.dark .portfolio-hero-card {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: rgba(100, 116, 139, 0.28);
+}
+
+body.dark .portfolio-hero-identity {
+  background: #334155;
+}
+
+body.dark .portfolio-identity-card,
+body.dark .portfolio-hero-note,
+body.dark .portfolio-contact-card,
+body.dark .portfolio-secondary-btn {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(100, 116, 139, 0.34);
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.28);
+}
+
+body.dark .portfolio-identity-copy strong,
+body.dark .portfolio-hero-note-label,
+body.dark .portfolio-card h3,
+body.dark .portfolio-skill-card h3,
+body.dark .portfolio-contact-card strong,
+body.dark .portfolio-secondary-btn {
+  color: #f8fafc;
+}
+
+body.dark .portfolio-identity-icon {
+  background: rgba(148, 163, 184, 0.14);
+  color: #dbeafe;
+}
+
+body.dark .portfolio-contact-link span:first-child {
+  color: #94a3b8;
+}
+
+body.dark .portfolio-meta-chip {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #e2e8f0;
+}
+
+body.dark .portfolio-chip {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #e2e8f0;
+}
+
+body.dark .portfolio-chip.subtle {
+  background: rgba(30, 41, 59, 0.88);
+  color: #cbd5e1;
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+body.dark .portfolio-secondary-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+}
+
+body.dark .portfolio-skill-card,
+body.dark .portfolio-card {
+  border-color: rgba(100, 116, 139, 0.24);
+}
+
 .portfolio-card {
-  background: var(--portfolio-card);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--portfolio-border-soft);
   border-radius: 24px;
   box-shadow: var(--portfolio-shadow);
+  backdrop-filter: blur(10px);
 }
 
 .portfolio-about-card {
@@ -606,9 +742,10 @@ body.dark .portfolio-kicker {
 
 .portfolio-skill-card {
   padding: 18px 18px 16px;
-  background: var(--portfolio-card);
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--portfolio-border-soft);
   border-radius: 20px;
+  backdrop-filter: blur(10px);
 }
 
 .portfolio-skill-header {
@@ -710,15 +847,22 @@ body.dark .portfolio-kicker {
 }
 
 .portfolio-chip {
-  background: var(--portfolio-accent-soft);
-  color: #3730a3;
-  padding: 9px 12px;
+  background: #edf5f6;
+  color: #27313a;
+  padding: 9px 14px;
+  border: 1px solid rgba(67, 96, 110, 0.2);
+  font-weight: 600;
 }
 
 .portfolio-chip.subtle {
   background: var(--portfolio-card);
   color: var(--portfolio-text-muted);
   border: 1px solid var(--portfolio-border-soft);
+}
+
+body.dark .portfolio-card,
+body.dark .portfolio-skill-card {
+  background: rgba(15, 23, 42, 0.82);
 }
 
 .portfolio-education-grid {
@@ -795,6 +939,7 @@ body.dark .portfolio-kicker {
     align-items: stretch;
     justify-content: flex-start;
     gap: 24px;
+    padding: 18px;
   }
 
   .portfolio-avatar-shell {
@@ -837,7 +982,7 @@ body.dark .portfolio-kicker {
     grid-template-columns: 1fr;
     min-height: auto;
     gap: 24px;
-    padding: 26px 22px;
+    padding: 22px 18px;
   }
 
   .portfolio-hero-identity {
@@ -886,7 +1031,7 @@ body.dark .portfolio-kicker {
   }
 
   .portfolio-hero-card {
-    padding: 24px;
+    padding: 18px;
     border-radius: 28px;
   }
 
@@ -895,13 +1040,14 @@ body.dark .portfolio-kicker {
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 14px;
   }
 
   .portfolio-avatar-shell {
     width: 100%;
-    max-width: 220px;
-    height: 190px;
-    border-radius: 28px;
+    max-width: 240px;
+    height: 210px;
+    border-radius: 22px;
   }
 
   .portfolio-hero-content,

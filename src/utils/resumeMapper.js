@@ -1,10 +1,13 @@
 export const mapProfileToResumeData = (profile) => ({
   fullName: profile?.fullName || "",
   email: profile?.email || "",
+  mobileNumber: profile?.mobileNumber || "",
   headline: profile?.headline || "",
+  professionalSummary: profile?.professionalSummary || "",
   about: profile?.about || "",
   profilePhoto: profile?.profileImageUrl || profile?.profilePhoto || "",
   profileImageUrl: profile?.profileImageUrl || "",
+  profileImagePosition: profile?.profileImagePosition || "top",
   skills: profile?.skills || [],
   experiences: profile?.experiences || [],
   projects: profile?.projects || [],

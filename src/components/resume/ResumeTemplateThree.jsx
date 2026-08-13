@@ -1,8 +1,10 @@
 import "../../styles/resume/ResumeTemplateThree.css";
 import { categorizeSkillsAsObject } from "../../utils/skillCategories";
+import { getProfileImageObjectPosition } from "../../utils/profileImagePosition";
 
 function ResumeTemplateThree({ data }) {
   const imageSrc = data?.profileImageUrl || data?.profilePhoto || "";
+  const imagePosition = getProfileImageObjectPosition(data?.profileImagePosition);
   const skills = (data?.skills || []).filter((skill) => skill?.name?.trim());
   const skillGroups = categorizeSkillsAsObject(skills);
   const topSkills = skills.slice(0, 5);
@@ -14,6 +16,7 @@ function ResumeTemplateThree({ data }) {
   const location = getLocation(data);
   const primaryEducation = getPrimaryEducation(data?.education || []);
   const summaryText =
+    data?.professionalSummary?.trim() ||
     data?.about?.trim() ||
     "Senior Software Engineer building scalable backend systems, resilient microservices, and production-ready cloud platforms.";
   const highlights = buildHighlights({ experienceYears, skills });
@@ -24,7 +27,12 @@ function ResumeTemplateThree({ data }) {
         <div className="rt3-header-left">
           <div className="rt3-avatar-wrap">
             {imageSrc ? (
-              <img src={imageSrc} alt={data?.fullName || "Profile"} className="rt3-avatar" />
+              <img
+                src={imageSrc}
+                alt={data?.fullName || "Profile"}
+                className="rt3-avatar"
+                style={{ objectPosition: imagePosition }}
+              />
             ) : (
               <div className="rt3-avatar rt3-avatar-placeholder">👤</div>
             )}
@@ -56,6 +64,12 @@ function ResumeTemplateThree({ data }) {
               <span className="rt3-meta-item">
                 <span aria-hidden="true">✉</span>
                 <span>{data.email}</span>
+              </span>
+            )}
+            {data?.mobileNumber && (
+              <span className="rt3-meta-item">
+                <span aria-hidden="true">☎</span>
+                <span>{data.mobileNumber}</span>
               </span>
             )}
             {linkedin?.url && (

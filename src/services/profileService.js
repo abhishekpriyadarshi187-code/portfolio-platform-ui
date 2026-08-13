@@ -1,3 +1,5 @@
+import { normalizeProfileImagePosition } from "../utils/profileImagePosition";
+
 const BASE_URL = "http://localhost:8080/api/v1/profile";
 
 const getAuthHeaders = () => {
@@ -38,6 +40,7 @@ const normalizeProfileData = (data) => {
     ...data,
     profileImageUrl: data.profileImageUrl || "",
     profilePhoto: data.profileImageUrl || "",
+    profileImagePosition: normalizeProfileImagePosition(data.profileImagePosition),
   };
 };
 

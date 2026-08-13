@@ -5,6 +5,7 @@ function ResumeTemplateOne({ data }) {
   const skills = (data?.skills || []).filter((skill) => skill?.name?.trim());
   const contactItems = buildContactItems(data);
   const summaryText =
+    data?.professionalSummary?.trim() ||
     data?.about?.trim() ||
     "Senior Software Engineer building scalable backend systems, production-grade platforms, and developer-friendly software solutions.";
   const skillGroups = categorizeSkills(skills);
@@ -171,6 +172,10 @@ function buildContactItems(data) {
 
   if (data?.email) {
     items.push(data.email);
+  }
+
+  if (data?.mobileNumber) {
+    items.push(data.mobileNumber);
   }
 
   (data?.socialLinks || []).forEach((link) => {

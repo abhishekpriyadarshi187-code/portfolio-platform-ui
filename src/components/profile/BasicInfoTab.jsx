@@ -1,10 +1,28 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../../styles/profile/BasicInfoTab.css";
 import { uploadProfileImage } from "../../services/profileService";
+import {
+  getProfileImageObjectPosition,
+  normalizeProfileImagePosition,
+} from "../../utils/profileImagePosition";
 
 function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
   const fileInputRef = useRef(null);
+  const [pendingPhoto, setPendingPhoto] = useState(null);
+  const [pendingImagePosition, setPendingImagePosition] = useState(
+    normalizeProfileImagePosition(profile.profileImagePosition)
+  );
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const imageSrc = profile.profileImageUrl || profile.profilePhoto || "";
+  const imagePosition = normalizeProfileImagePosition(profile.profileImagePosition);
+
+  useEffect(() => {
+    return () => {
+      if (pendingPhoto?.previewUrl) {
+        URL.revokeObjectURL(pendingPhoto.previewUrl);
+      }
+    };
+  }, [pendingPhoto]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,25 +53,18 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
       return;
     }
 
-    const localPreviewUrl = URL.createObjectURL(file);
+    if (pendingPhoto?.previewUrl) {
+      URL.revokeObjectURL(pendingPhoto.previewUrl);
+    }
 
-    setProfile((prev) => ({
-      ...prev,
-      profilePhoto: localPreviewUrl,
-      profileImageUrl: "",
-    }));
+    setPendingPhoto({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    });
+    setPendingImagePosition(imagePosition);
 
-    try {
-      const response = await uploadProfileImage(file);
-
-      setProfile((prev) => ({
-        ...prev,
-        profilePhoto: response?.profileImageUrl || localPreviewUrl,
-        profileImageUrl: response?.profileImageUrl || "",
-      }));
-    } catch (error) {
-      console.error("Failed to upload profile image:", error);
-      alert(error.message || "Failed to upload profile image");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -62,10 +73,46 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
       ...prev,
       profilePhoto: "",
       profileImageUrl: "",
+      profileImagePosition: normalizeProfileImagePosition(undefined),
     }));
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCancelPendingPhoto = () => {
+    if (pendingPhoto?.previewUrl) {
+      URL.revokeObjectURL(pendingPhoto.previewUrl);
+    }
+    setPendingPhoto(null);
+    setPendingImagePosition(imagePosition);
+  };
+
+  const handleApplyPendingPhoto = async () => {
+    if (!pendingPhoto?.file) return;
+
+    setUploadingPhoto(true);
+
+    try {
+      const response = await uploadProfileImage(pendingPhoto.file);
+
+      setProfile((prev) => ({
+        ...prev,
+        profilePhoto: response?.profileImageUrl || pendingPhoto.previewUrl,
+        profileImageUrl: response?.profileImageUrl || "",
+        profileImagePosition: normalizeProfileImagePosition(pendingImagePosition),
+      }));
+
+      if (pendingPhoto.previewUrl) {
+        URL.revokeObjectURL(pendingPhoto.previewUrl);
+      }
+      setPendingPhoto(null);
+    } catch (error) {
+      console.error("Failed to upload profile image:", error);
+      alert(error.message || "Failed to upload profile image");
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -86,6 +133,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
                 src={imageSrc}
                 alt="Profile Preview"
                 className="photo-image"
+                style={{ objectPosition: getProfileImageObjectPosition(imagePosition) }}
               />
             ) : (
               <div className="photo-placeholder">👤</div>
@@ -122,6 +170,7 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
             <p className="helper-text">JPG, PNG, WEBP up to 2MB</p>
           </div>
         </div>
+
       </div>
 
       <div className="basic-info-grid">
@@ -148,6 +197,17 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
       </div>
 
       <div className="field-group">
+        <label className="field-label">Mobile Number</label>
+        <input
+          type="tel"
+          name="mobileNumber"
+          placeholder="+91 98765 43210"
+          value={profile.mobileNumber || ""}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="field-group">
         <label className="field-label">Headline</label>
         <input
           type="text"
@@ -158,16 +218,73 @@ function BasicInfoTab({ profile, setProfile, userEmail = "" }) {
         />
       </div>
 
-      <div className="field-group">
-        <label className="field-label">About</label>
-        <textarea
-          name="about"
-          placeholder="Tell us about yourself, your passions, and what drives you..."
-          value={profile.about || ""}
-          onChange={handleChange}
-          rows={5}
-        />
-      </div>
+      {pendingPhoto && (
+        <div className="photo-crop-modal" role="dialog" aria-modal="true">
+          <div className="photo-crop-card">
+            <div className="photo-crop-header">
+              <h3>Adjust Photo</h3>
+              <p>Position your photo before uploading it.</p>
+            </div>
+
+            <div className="photo-crop-body">
+              <div className="photo-crop-preview">
+                <img
+                  src={pendingPhoto.previewUrl}
+                  alt="Crop preview"
+                  className="photo-crop-image"
+                  style={{
+                    objectPosition: getProfileImageObjectPosition(pendingImagePosition),
+                  }}
+                />
+              </div>
+
+              <div className="photo-crop-controls">
+                <label className="field-label" htmlFor="photo-position-range">
+                  Adjust Framing
+                </label>
+                <input
+                  id="photo-position-range"
+                  className="photo-crop-range"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={pendingImagePosition}
+                  onChange={(e) =>
+                    setPendingImagePosition(
+                      normalizeProfileImagePosition(Number(e.target.value))
+                    )
+                  }
+                />
+                <div className="photo-crop-range-labels">
+                  <span>Top</span>
+                  <span>Center</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="photo-crop-actions">
+              <button
+                type="button"
+                className="photo-crop-cancel"
+                onClick={handleCancelPendingPhoto}
+                disabled={uploadingPhoto}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="photo-crop-save"
+                onClick={handleApplyPendingPhoto}
+                disabled={uploadingPhoto}
+              >
+                {uploadingPhoto ? "Uploading..." : "Use Photo"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
