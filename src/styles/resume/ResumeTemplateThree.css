@@ -15,6 +15,8 @@
   align-items: start;
   padding-bottom: 12px;
   border-bottom: 1px solid #e2e8f0;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .rt3-header-left {
@@ -128,7 +130,6 @@
 
 .rt3-section {
   margin-bottom: 12px;
-  page-break-inside: avoid;
 }
 
 .rt3-section:last-child {
@@ -141,6 +142,8 @@
   line-height: 1.22;
   color: #0f172a;
   font-weight: 800;
+  break-after: avoid;
+  page-break-after: avoid;
 }
 
 .rt3-summary-card {
@@ -148,6 +151,8 @@
   border-radius: 16px;
   background: #ffffff;
   padding: 10px 12px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .rt3-summary {
@@ -163,22 +168,13 @@
   line-height: 1.52;
 }
 
-.rt3-summary p {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.rt3-highlight-chips,
 .rt3-skill-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.rt3-skill-chip,
-.rt3-highlight-chip {
+.rt3-skill-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -194,22 +190,15 @@
   font-size: 13px;
 }
 
-.rt3-highlight-chip {
-  gap: 6px;
-  padding: 5px 9px;
-  border: 1px solid rgba(91, 91, 246, 0.16);
-  background: rgba(91, 91, 246, 0.06);
-  color: #5b5bf6;
-  font-size: 12px;
-}
-
 .rt3-skill-matrix {
   display: grid;
   gap: 8px;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   background: #ffffff;
-  padding: 10px 12px;
+  padding: 9px 12px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .rt3-skill-group {
@@ -248,7 +237,13 @@
   border-radius: 16px;
   background: #ffffff;
   padding: 9px 11px;
+  break-inside: avoid;
   page-break-inside: avoid;
+}
+
+.rt3-experience-card,
+.rt3-project-card {
+  padding: 8px 11px;
 }
 
 .rt3-experience-card {
@@ -306,21 +301,40 @@
 
 .rt3-project-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 8px 11px;
+}
+
+.rt3-project-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.rt3-project-card > .rt3-card-title {
+  font-weight: 800;
+}
+
+.rt3-project-grid > div {
+  grid-column: 1 / -1;
+}
+
+.rt3-section-page-break {
+  break-before: page;
+  page-break-before: always;
 }
 
 .rt3-project-copy {
   margin-top: 5px;
 }
 
-.rt3-project-summary {
-  color: #0f172a;
-  font-weight: 600;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.rt3-project-copy .rt3-bullet-list {
+  margin-top: 0;
 }
 
 .rt3-tech-stack {
@@ -349,7 +363,7 @@
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
-  padding: 10px 12px;
+  padding: 9px 12px;
 }
 
 .rt3-education-specialization {
@@ -456,12 +470,13 @@
   }
 
   .rt3-header,
-  .rt3-section,
   .rt3-summary-card,
+  .rt3-skill-matrix,
   .rt3-experience-card,
   .rt3-project-card,
   .rt3-education-card,
   .rt3-achievement-card {
     break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

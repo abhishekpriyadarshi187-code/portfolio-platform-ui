@@ -331,6 +331,10 @@ body {
   opacity: 1;
 }
 
+.resume-pdf-hidden-template3 {
+  width: calc(210mm - 0.4in);
+}
+
 @media (max-width: 1120px) {
   .resume-builder-shell {
     width: min(94vw, var(--resume-builder-shell-width));

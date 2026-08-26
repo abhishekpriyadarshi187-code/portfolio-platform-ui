@@ -13,13 +13,12 @@ function ResumeTemplateThree({ data }) {
   const linkedin = (data?.socialLinks || []).find((link) =>
     (link?.platform || "").toLowerCase().includes("linkedin")
   );
-  const location = getLocation(data);
   const primaryEducation = getPrimaryEducation(data?.education || []);
+  const projects = data?.projects || [];
   const summaryText =
     data?.professionalSummary?.trim() ||
     data?.about?.trim() ||
     "Senior Software Engineer building scalable backend systems, resilient microservices, and production-ready cloud platforms.";
-  const highlights = buildHighlights({ experienceYears, skills });
 
   return (
     <div className="rt3-shell">
@@ -46,12 +45,6 @@ function ResumeTemplateThree({ data }) {
               </div>
             )}
 
-            {experienceYears && (
-              <div className="rt3-mini-card">
-                <strong>{experienceYears}+ Years Experience</strong>
-                <span>Building scalable systems</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -78,12 +71,6 @@ function ResumeTemplateThree({ data }) {
                 <span>LinkedIn</span>
               </span>
             )}
-            {location && (
-              <span className="rt3-meta-item">
-                <span aria-hidden="true">📍</span>
-                <span>{location}</span>
-              </span>
-            )}
             {experienceYears && (
               <span className="rt3-meta-item">
                 <span aria-hidden="true">💼</span>
@@ -101,24 +88,10 @@ function ResumeTemplateThree({ data }) {
           <h2 className="rt3-section-title">Professional Summary</h2>
           <div className="rt3-summary-card">
             <div className="rt3-summary">
-              <p>{truncateSummary(summaryText)}</p>
+              <p>{summaryText}</p>
             </div>
           </div>
         </section>
-
-        {highlights.length > 0 && (
-          <section className="rt3-section">
-            <h2 className="rt3-section-title">Key Highlights</h2>
-            <div className="rt3-highlight-chips rt3-career-snapshot">
-              {highlights.map((item, index) => (
-                <span key={index} className="rt3-highlight-chip">
-                  <span aria-hidden="true">✓</span>
-                  <span>{item}</span>
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
 
         {Object.keys(skillGroups).length > 0 && (
           <section className="rt3-section">
@@ -157,28 +130,11 @@ function ResumeTemplateThree({ data }) {
           </section>
         )}
 
-        {(data?.projects || []).length > 0 && (
-          <section className="rt3-section">
+        {projects.length > 0 && (
+          <section className="rt3-section rt3-project-section">
             <h2 className="rt3-section-title">Projects</h2>
             <div className="rt3-project-grid">
-              {data.projects.map((project, index) => (
-                <article key={index} className="rt3-project-card">
-                  <h3 className="rt3-card-title">{project?.title || "Project"}</h3>
-                  {renderProjectContent(project?.description)}
-                  {(project?.techStack || []).filter(Boolean).length > 0 && (
-                    <div className="rt3-tech-stack">
-                      <strong>Tech Stack</strong>
-                      <div className="rt3-skill-chips rt3-skill-chips-compact">
-                        {project.techStack.filter(Boolean).slice(0, 6).map((tech, techIndex) => (
-                          <span key={`${tech}-${techIndex}`} className="rt3-skill-chip">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </article>
-              ))}
+              {projects.map(renderProjectCard)}
             </div>
           </section>
         )}
@@ -247,12 +203,6 @@ function normalizeHeadline(headline = "") {
   return normalized;
 }
 
-function truncateSummary(text = "") {
-  const trimmed = text.trim();
-  if (trimmed.length <= 250) return trimmed;
-  return `${trimmed.slice(0, 247).trim()}...`;
-}
-
 function formatExperienceRange(experience) {
   const start = formatDate(experience?.startDate);
   const end = experience?.current ? "Present" : formatDate(experience?.endDate);
@@ -284,11 +234,6 @@ function getExperienceYears(experiences) {
   return Math.max(1, Math.floor((Date.now() - earliest.getTime()) / (1000 * 60 * 60 * 24 * 365.25)));
 }
 
-function getLocation(data) {
-  const educationLocation = (data?.education || []).find((entry) => entry?.institution?.location)?.institution?.location;
-  return educationLocation || "";
-}
-
 function getPrimaryEducation(educationList) {
   if (!educationList?.length) return null;
   const ranked = [...educationList].sort((a, b) => {
@@ -316,18 +261,6 @@ function formatFieldOfStudy(field = "") {
   const normalized = field.trim().toLowerCase();
   if (normalized === "cse") return "Computer Science Engineering";
   return field;
-}
-
-function buildHighlights({ experienceYears, skills }) {
-  const names = skills.map((skill) => skill?.name?.toLowerCase() || "");
-  const items = [];
-  if (experienceYears) items.push(`${experienceYears}+ Years Experience`);
-  if (names.some((name) => /(java|spring|backend)/.test(name))) items.push("Backend Engineering");
-  if (names.some((name) => /(microservice|kafka|event)/.test(name))) items.push("Microservices Architecture");
-  if (names.some((name) => /(aws|cloud|docker|kubernetes)/.test(name))) items.push("AWS Cloud");
-  if (names.some((name) => /(kafka|event)/.test(name))) items.push("Event Driven Systems");
-  if (names.some((name) => /(api|backend|spring)/.test(name))) items.push("Scalable APIs");
-  return items.slice(0, 6);
 }
 
 function descriptionToItems(description = "") {
@@ -360,25 +293,36 @@ function renderBulletList(description = "") {
 function renderProjectContent(description = "") {
   const items = descriptionToItems(description);
   if (items.length === 0) return null;
-  const [summary, ...rest] = items;
   return (
     <div className="rt3-project-copy">
-      <p className="rt3-card-meta rt3-project-summary">{truncateProjectSummary(summary)}</p>
-      {rest.length > 0 && (
-        <ul className="rt3-bullet-list">
-          {rest.slice(0, 5).map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
-      )}
+      <ul className="rt3-bullet-list">
+        {items.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-function truncateProjectSummary(text = "") {
-  const trimmed = text.trim();
-  if (trimmed.length <= 120) return trimmed;
-  return `${trimmed.slice(0, 117).trim()}...`;
+function renderProjectCard(project, index) {
+  return (
+    <article key={index} className="rt3-project-card">
+      <h3 className="rt3-card-title">{project?.title || "Project"}</h3>
+      {renderProjectContent(project?.description)}
+      {(project?.techStack || []).filter(Boolean).length > 0 && (
+        <div className="rt3-tech-stack">
+          <strong>Tech Stack</strong>
+          <div className="rt3-skill-chips rt3-skill-chips-compact">
+            {project.techStack.filter(Boolean).slice(0, 6).map((tech, techIndex) => (
+              <span key={`${tech}-${techIndex}`} className="rt3-skill-chip">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+  );
 }
 
 export default ResumeTemplateThree;

@@ -92,6 +92,8 @@ function ResumeBuilder() {
 
       const element = pdfRef.current || previewRef.current;
 
+      prepareTemplateThreePagination(element, selectedTemplate);
+
       const worker = html2pdf().set({
         margin: 0.2,
         filename: `${dataForPdf.fullName || "resume"}.pdf`,
@@ -229,7 +231,11 @@ function ResumeBuilder() {
         </div>
       </div>
 
-      <div className="resume-pdf-hidden">
+      <div
+        className={`resume-pdf-hidden ${
+          selectedTemplate === "template3" ? "resume-pdf-hidden-template3" : ""
+        }`}
+      >
         <div id="resume-pdf-preview" ref={pdfRef}>
           {pdfResumeData && (
             <ResumePreview
@@ -241,6 +247,61 @@ function ResumeBuilder() {
       </div>
     </div>
   );
+}
+
+function prepareTemplateThreePagination(element, selectedTemplate) {
+  if (selectedTemplate !== "template3") return;
+
+  const sections = element?.querySelectorAll(".rt3-section");
+  if (!sections?.length) return;
+
+  sections.forEach((section) => section.classList.remove("rt3-section-page-break"));
+
+  const rootTop = element.getBoundingClientRect().top;
+  const a4InnerPageHeight = ((841.89 / 72) - 0.4) * 96;
+  const cardSelector = [
+    ".rt3-summary-card",
+    ".rt3-skill-matrix",
+    ".rt3-experience-card",
+    ".rt3-project-card",
+    ".rt3-education-card",
+    ".rt3-achievement-card",
+  ].join(", ");
+  let insertedPageBreakSpace = 0;
+
+  const accountForIntactCard = (card) => {
+    const cardRect = card.getBoundingClientRect();
+    const cardTop = cardRect.top - rootTop + insertedPageBreakSpace;
+    const cardBottom = cardRect.bottom - rootTop + insertedPageBreakSpace;
+    const cardStartPage = Math.floor(cardTop / a4InnerPageHeight);
+    const cardEndPage = Math.floor((cardBottom - 1) / a4InnerPageHeight);
+
+    if (cardStartPage !== cardEndPage && cardRect.height <= a4InnerPageHeight) {
+      insertedPageBreakSpace += a4InnerPageHeight - (cardTop % a4InnerPageHeight);
+    }
+  };
+
+  const header = element.querySelector(".rt3-header");
+  if (header) accountForIntactCard(header);
+
+  sections.forEach((section) => {
+    const firstCard = section.querySelector(cardSelector);
+    if (!firstCard) return;
+
+    const sectionTop =
+      section.getBoundingClientRect().top - rootTop + insertedPageBreakSpace;
+    const firstCardBottom =
+      firstCard.getBoundingClientRect().bottom - rootTop + insertedPageBreakSpace + 2;
+    const sectionStartPage = Math.floor(sectionTop / a4InnerPageHeight);
+    const firstCardEndPage = Math.floor((firstCardBottom - 1) / a4InnerPageHeight);
+
+    if (sectionStartPage !== firstCardEndPage) {
+      section.classList.add("rt3-section-page-break");
+      insertedPageBreakSpace += a4InnerPageHeight - (sectionTop % a4InnerPageHeight);
+    }
+
+    section.querySelectorAll(cardSelector).forEach(accountForIntactCard);
+  });
 }
 
 export default ResumeBuilder;
