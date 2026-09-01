@@ -467,6 +467,45 @@
   .rt3-shell {
     box-shadow: none;
     border: none;
+    padding: 20px 24px 22px;
+  }
+
+  .rt3-header {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .rt3-header-left {
+    grid-template-columns: none;
+  }
+
+  .rt3-name {
+    font-size: 36px;
+  }
+
+  .rt3-role {
+    font-size: 22px;
+  }
+
+  .rt3-achievement-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rt3-skill-group {
+    grid-template-columns: 124px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .rt3-education-card,
+  .rt3-card-header {
+    flex-direction: row;
+  }
+
+  .rt3-education-meta {
+    text-align: right;
+  }
+
+  .rt3-date-range {
+    white-space: nowrap;
   }
 
   .rt3-header,

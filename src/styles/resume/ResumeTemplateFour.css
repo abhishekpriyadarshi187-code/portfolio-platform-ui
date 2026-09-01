@@ -1,0 +1,161 @@
+.rt4-shell {
+  width: 100%;
+  min-height: 297mm;
+  box-sizing: border-box;
+  padding: 30px 36px 34px;
+  background: #ffffff;
+  color: #111111;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.rt4-header {
+  padding-bottom: 10px;
+  border-bottom: 2px solid #111111;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.rt4-name {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rt4-headline {
+  margin: 5px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.rt4-contact {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.rt4-body {
+  padding-top: 12px;
+}
+
+.rt4-section {
+  margin-bottom: 14px;
+}
+
+.rt4-section:last-child {
+  margin-bottom: 0;
+}
+
+.rt4-section-intro {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.rt4-section-title {
+  margin: 0 0 6px;
+  font-family: Arial, Helvetica, sans-serif;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #444444;
+  color: #111111;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.rt4-section-body {
+  display: grid;
+  gap: 10px;
+}
+
+.rt4-section-intro + .rt4-section-body {
+  margin-top: 10px;
+}
+
+.rt4-entry {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.rt4-entry-header {
+  margin-bottom: 3px;
+}
+
+.rt4-entry-primary {
+  min-width: 0;
+}
+
+.rt4-entry-title {
+  margin: 0;
+  color: #111111;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.rt4-entry-subtitle {
+  margin: 1px 0 0;
+  color: #222222;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.rt4-text {
+  margin: 0;
+  color: #222222;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.rt4-entry-description {
+  margin-top: 4px;
+}
+
+.rt4-skill-groups {
+  display: grid;
+  gap: 3px;
+}
+
+.rt4-skill-line strong {
+  color: #111111;
+}
+
+.rt4-bullet-list {
+  margin: 4px 0 0;
+  padding-left: 17px;
+  color: #222222;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.rt4-bullet-list li + li {
+  margin-top: 2px;
+}
+
+@media (max-width: 720px) {
+  .rt4-shell {
+    min-height: auto;
+    padding: 24px 20px;
+  }
+
+}
+
+@media print {
+  .rt4-shell {
+    min-height: auto;
+    padding: 0.3in;
+  }
+
+  .rt4-header,
+  .rt4-section-intro,
+  .rt4-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

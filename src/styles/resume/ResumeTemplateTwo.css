@@ -435,13 +435,39 @@
 
 @media print {
   .rt2-shell {
+    display: block;
+    position: relative;
     border: none;
     box-shadow: none;
     overflow: visible;
   }
 
   .rt2-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--rt2-sidebar-width);
     background: transparent;
+    border-right: 1px solid #dbe4f2;
+    border-bottom: none;
+  }
+
+  .rt2-main {
+    width: calc(100% - var(--rt2-sidebar-width));
+    margin-left: var(--rt2-sidebar-width);
+  }
+
+  .rt2-top-row {
+    flex-direction: row;
+  }
+
+  .rt2-date-wrap {
+    align-items: flex-end;
+  }
+
+  .rt2-link-text {
+    max-width: 120px;
+    text-align: right;
   }
 
   .rt2-sidebar-inner {

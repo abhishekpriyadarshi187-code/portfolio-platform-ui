@@ -16,6 +16,12 @@ function ResumeTemplateSelector({ selectedTemplate, onSelect }) {
       description:
         "Premium ATS-friendly executive resume for senior engineers and architects.",
     },
+    {
+      id: "template4",
+      title: "ATS Experience Focused",
+      description:
+        "Clean single-column resume focused on skills and professional experience.",
+    },
   ];
 
   return (

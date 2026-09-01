@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
 import ResumeTemplateSelector from "../components/resume/ResumeTemplateSelector";
 import ResumePreview from "../components/resume/ResumePreview";
 import { mapProfileToResumeData } from "../utils/resumeMapper";
@@ -22,6 +21,7 @@ function ResumeBuilder() {
   const [pdfResumeData, setPdfResumeData] = useState(null);
   const previewRef = useRef(null);
   const pdfRef = useRef(null);
+  const uploadInputRef = useRef(null);
 
   useEffect(() => {
     loadData();
@@ -68,7 +68,7 @@ function ResumeBuilder() {
     }
   };
 
-  const handleDownloadAndUpload = async () => {
+  const handlePrintResume = async () => {
     try {
       if (!previewRef.current) return;
 
@@ -93,45 +93,42 @@ function ResumeBuilder() {
       const element = pdfRef.current || previewRef.current;
 
       prepareTemplateThreePagination(element, selectedTemplate);
+      await waitForPrintableAssets(element);
 
-      const worker = html2pdf().set({
-        margin: 0.2,
-        filename: `${dataForPdf.fullName || "resume"}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: false },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: {
-          mode: ["css", "legacy"],
-          avoid: [
-            ".rt1-avoid-break",
-            ".rt1-project-entry",
-            ".rt1-bullet-list",
-            ".rt1-bullet-list li",
-          ],
-        },
-      }).from(element);
-
-      const pdfBlob = await worker.outputPdf("blob");
-
-      const file = new File([pdfBlob], `${dataForPdf.fullName || "resume"}.pdf`, {
-        type: "application/pdf",
-      });
-
-      await uploadResumePdf(file, selectedTemplate);
-
-      const downloadUrl = URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = `${dataForPdf.fullName || "resume"}.pdf`;
-      link.click();
-      URL.revokeObjectURL(downloadUrl);
-
-      alert("Resume generated, uploaded, and downloaded successfully ✅");
+      const previousTitle = document.title;
+      try {
+        document.title = `${dataForPdf.fullName || "resume"} - Resume`;
+        window.print();
+      } finally {
+        document.title = previousTitle;
+      }
     } catch (error) {
-      console.error("Failed to generate/upload resume:", error);
-      alert(error.message || "Failed to generate resume PDF");
+      console.error("Failed to prepare resume for printing:", error);
+      alert(error.message || "Failed to prepare resume PDF");
     } finally {
       setPdfResumeData(null);
+      setSaving(false);
+    }
+  };
+
+  const handleUploadSavedPdf = async (event) => {
+    const [file] = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Please select the PDF you saved from the print dialog.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await uploadResumePdf(file, selectedTemplate);
+      alert("ATS-readable resume PDF uploaded successfully ✅");
+    } catch (error) {
+      console.error("Failed to upload saved resume PDF:", error);
+      alert(error.message || "Failed to upload resume PDF");
+    } finally {
       setSaving(false);
     }
   };
@@ -198,14 +195,33 @@ function ResumeBuilder() {
               <div className="resume-builder-actions">
                 <button
                   className="resume-builder-primary-btn"
-                  onClick={handleDownloadAndUpload}
+                  onClick={handlePrintResume}
                   disabled={saving}
                 >
-                  {saving ? "Generating PDF..." : "Generate & Download PDF"}
+                  {saving ? "Preparing PDF..." : "Print / Save as PDF"}
                 </button>
+                <input
+                  ref={uploadInputRef}
+                  className="resume-builder-file-input"
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={handleUploadSavedPdf}
+                />
+                <button
+                  type="button"
+                  className="resume-builder-upload-btn"
+                  onClick={() => uploadInputRef.current?.click()}
+                  disabled={saving}
+                >
+                  Upload Saved PDF
+                </button>
+                <p className="resume-builder-pdf-note">
+                  In the print dialog, choose Save as PDF. Upload that saved file if
+                  it should replace the resume stored with your portfolio.
+                </p>
                 <div className="resume-builder-action-note">
                   <strong>Selected template</strong>
-                  <span>{selectedTemplate === "template2" ? "Modern With Image" : "Classic Professional"}</span>
+                  <span>{getTemplateName(selectedTemplate)}</span>
                 </div>
               </div>
             </section>
@@ -218,7 +234,7 @@ function ResumeBuilder() {
                 <h2>A4 Resume Preview</h2>
               </div>
               <span className="resume-preview-chip">
-                {selectedTemplate === "template2" ? "Template Two" : "Template One"}
+                {getTemplateNumber(selectedTemplate)}
               </span>
             </div>
 
@@ -237,12 +253,10 @@ function ResumeBuilder() {
         }`}
       >
         <div id="resume-pdf-preview" ref={pdfRef}>
-          {pdfResumeData && (
-            <ResumePreview
-              selectedTemplate={selectedTemplate}
-              data={pdfResumeData}
-            />
-          )}
+          <ResumePreview
+            selectedTemplate={selectedTemplate}
+            data={pdfResumeData || resumeData}
+          />
         </div>
       </div>
     </div>
@@ -302,6 +316,45 @@ function prepareTemplateThreePagination(element, selectedTemplate) {
 
     section.querySelectorAll(cardSelector).forEach(accountForIntactCard);
   });
+}
+
+async function waitForPrintableAssets(element) {
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+
+  const pendingImages = Array.from(element?.querySelectorAll("img") || [])
+    .filter((image) => !image.complete)
+    .map(
+      (image) =>
+        new Promise((resolve) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", resolve, { once: true });
+        })
+    );
+
+  await Promise.all(pendingImages);
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+function getTemplateName(templateId) {
+  const names = {
+    template1: "ATS Standard",
+    template2: "Modern With Image",
+    template3: "Executive Professional",
+    template4: "ATS Experience Focused",
+  };
+  return names[templateId] || names.template1;
+}
+
+function getTemplateNumber(templateId) {
+  const labels = {
+    template1: "Template One",
+    template2: "Template Two",
+    template3: "Template Three",
+    template4: "Template Four",
+  };
+  return labels[templateId] || labels.template1;
 }
 
 export default ResumeBuilder;
