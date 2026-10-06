@@ -45,6 +45,26 @@ export const SKILL_CATEGORY_DEFINITIONS = [
     patterns: [/hld/, /lld/, /design pattern/, /system design/, /architecture/, /event driven/],
   },
   {
+    label: "Methodologies",
+    patterns: [
+      /\bagile\b/,
+      /\bscrum\b/,
+      /\bkanban\b/,
+      /^safe$/,
+      /scaled agile framework/,
+      /\bwaterfall\b/,
+      /^lean$/,
+      /lean software/,
+      /extreme programming/,
+      /\bxp\b/,
+      /\btdd\b/,
+      /test driven development/,
+      /\bbdd\b/,
+      /behavior driven development/,
+      /behaviour driven development/,
+    ],
+  },
+  {
     label: "Messaging & Event Streaming",
     patterns: [
       /kafka/,

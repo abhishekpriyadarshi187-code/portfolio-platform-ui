@@ -7,6 +7,7 @@ import {
   getProfileImageObjectPosition,
   normalizeProfileImagePosition,
 } from "../utils/profileImagePosition";
+import { formatCurrentLocation } from "../utils/profileLocation";
 
 const emptyProfile = {
   fullName: "",
@@ -15,6 +16,12 @@ const emptyProfile = {
   about: "",
   email: "",
   mobileNumber: "",
+  currentLocation: {
+    city: "",
+    state: "",
+    country: "",
+  },
+  showLocationOnPortfolio: false,
   selectedHighlightTags: [],
   suggestedHighlightTags: [],
   profilePhoto: "",
@@ -68,6 +75,10 @@ function PortfolioView({ isOwner = true }) {
   const displayHeadline = useMemo(
     () => getDisplayHeadline(profile?.headline),
     [profile?.headline]
+  );
+  const heroLocation = useMemo(
+    () => formatCurrentLocation(profile?.currentLocation),
+    [profile?.currentLocation]
   );
   const heroSummary = useMemo(() => {
     const professionalSummary = profile?.professionalSummary?.trim() || "";
@@ -395,6 +406,15 @@ function PortfolioView({ isOwner = true }) {
                     <span aria-hidden="true">📱</span>
                     <span>{profile.mobileNumber}</span>
                   </a>
+                </div>
+              )}
+
+              {profile?.showLocationOnPortfolio && heroLocation && (
+                <div className="portfolio-contact-row">
+                  <div className="portfolio-contact-detail">
+                    <span aria-hidden="true">📍</span>
+                    <span>{heroLocation}</span>
+                  </div>
                 </div>
               )}
 

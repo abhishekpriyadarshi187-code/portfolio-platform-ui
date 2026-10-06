@@ -36,6 +36,10 @@
   word-break: break-word;
 }
 
+.rt1-social-contact-line {
+  margin-top: 3px;
+}
+
 .rt1-body {
   display: block;
 }

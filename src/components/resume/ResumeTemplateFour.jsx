@@ -1,10 +1,11 @@
 import "../../styles/resume/ResumeTemplateFour.css";
 import { categorizeSkills } from "../../utils/skillCategories";
+import { formatCurrentLocation } from "../../utils/profileLocation";
 
 function ResumeTemplateFour({ data }) {
   const skills = (data?.skills || []).filter((skill) => skill?.name?.trim());
   const skillGroups = categorizeSkills(skills);
-  const contactItems = buildContactItems(data);
+  const { primaryContactItems, socialContactItems } = buildContactLines(data);
   const summaryText =
     data?.professionalSummary?.trim() ||
     data?.about?.trim() ||
@@ -15,8 +16,13 @@ function ResumeTemplateFour({ data }) {
       <header className="rt4-header">
         <h1 className="rt4-name">{data?.fullName || "Your Name"}</h1>
         <p className="rt4-headline">{normalizeHeadline(data?.headline)}</p>
-        {contactItems.length > 0 && (
-          <p className="rt4-contact">{contactItems.join(" | ")}</p>
+        {primaryContactItems.length > 0 && (
+          <p className="rt4-contact">{primaryContactItems.join(" | ")}</p>
+        )}
+        {socialContactItems.length > 0 && (
+          <p className="rt4-contact rt4-social-contact">
+            {socialContactItems.join(" | ")}
+          </p>
         )}
       </header>
 
@@ -132,12 +138,23 @@ function ResumeSection({ title, children }) {
   );
 }
 
-function buildContactItems(data) {
-  return [
+function buildContactLines(data) {
+  const location = formatCurrentLocation(data?.currentLocation);
+  const primaryContactItems = [
     data?.email?.trim(),
     data?.mobileNumber?.trim(),
-    ...(data?.socialLinks || []).map((link) => link?.url?.trim()),
+    data?.showLocationOnResume ? location : "",
   ].filter(Boolean);
+  const socialContactItems = (data?.socialLinks || [])
+    .map((link) => {
+      const url = link?.url?.trim();
+      if (!url) return "";
+      const platform = link?.platform?.trim();
+      return platform ? `${platform}: ${url}` : url;
+    })
+    .filter(Boolean);
+
+  return { primaryContactItems, socialContactItems };
 }
 
 function normalizeHeadline(headline = "") {

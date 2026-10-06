@@ -21,6 +21,13 @@ const emptyProfile = {
   email: "",
   mobileNumber: "",
   headline: "",
+  currentLocation: {
+    city: "",
+    state: "",
+    country: "",
+  },
+  showLocationOnResume: false,
+  showLocationOnPortfolio: false,
   professionalSummary: "",
   about: "",
   selectedHighlightTags: [],
@@ -59,6 +66,13 @@ function ProfileBuilder() {
       if (data) {
         setProfile({
           ...data,
+          currentLocation: {
+            city: data.currentLocation?.city || "",
+            state: data.currentLocation?.state || "",
+            country: data.currentLocation?.country || "",
+          },
+          showLocationOnResume: Boolean(data.showLocationOnResume),
+          showLocationOnPortfolio: Boolean(data.showLocationOnPortfolio),
           profilePhoto: data.profileImageUrl || "",
           profileImageUrl: data.profileImageUrl || "",
           profileImagePosition: normalizeProfileImagePosition(data.profileImagePosition),
@@ -83,6 +97,13 @@ function ProfileBuilder() {
     fullName: profileData.fullName?.trim() || "",
     headline: profileData.headline?.trim() || "",
     mobileNumber: profileData.mobileNumber?.trim() || "",
+    currentLocation: {
+      city: profileData.currentLocation?.city?.trim() || "",
+      state: profileData.currentLocation?.state?.trim() || "",
+      country: profileData.currentLocation?.country?.trim() || "",
+    },
+    showLocationOnResume: Boolean(profileData.showLocationOnResume),
+    showLocationOnPortfolio: Boolean(profileData.showLocationOnPortfolio),
     profileImagePosition: normalizeProfileImagePosition(profileData.profileImagePosition),
     professionalSummary: profileData.professionalSummary?.trim() || "",
     selectedHighlightTags: (profileData.selectedHighlightTags || [])

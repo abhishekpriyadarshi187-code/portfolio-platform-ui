@@ -1,6 +1,7 @@
 import "../../styles/resume/ResumeTemplateThree.css";
 import { categorizeSkillsAsObject } from "../../utils/skillCategories";
 import { getProfileImageObjectPosition } from "../../utils/profileImagePosition";
+import { formatCurrentLocation } from "../../utils/profileLocation";
 
 function ResumeTemplateThree({ data }) {
   const imageSrc = data?.profileImageUrl || data?.profilePhoto || "";
@@ -13,6 +14,9 @@ function ResumeTemplateThree({ data }) {
   const linkedin = (data?.socialLinks || []).find((link) =>
     (link?.platform || "").toLowerCase().includes("linkedin")
   );
+  const resumeLocation = data?.showLocationOnResume
+    ? formatCurrentLocation(data?.currentLocation)
+    : "";
   const primaryEducation = getPrimaryEducation(data?.education || []);
   const projects = data?.projects || [];
   const summaryText =
@@ -63,6 +67,12 @@ function ResumeTemplateThree({ data }) {
               <span className="rt3-meta-item">
                 <span aria-hidden="true">☎</span>
                 <span>{data.mobileNumber}</span>
+              </span>
+            )}
+            {resumeLocation && (
+              <span className="rt3-meta-item">
+                <span aria-hidden="true">⌖</span>
+                <span>{resumeLocation}</span>
               </span>
             )}
             {linkedin?.url && (

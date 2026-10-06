@@ -1,9 +1,13 @@
 import "../../styles/resume/ResumeTemplateTwo.css";
 import { getProfileImageObjectPosition } from "../../utils/profileImagePosition";
+import { formatCurrentLocation } from "../../utils/profileLocation";
 
 function ResumeTemplateTwo({ data }) {
   const imageSrc = data.profileImageUrl || data.profilePhoto || "";
   const imagePosition = getProfileImageObjectPosition(data.profileImagePosition);
+  const resumeLocation = data.showLocationOnResume
+    ? formatCurrentLocation(data.currentLocation)
+    : "";
   const skills = (data.skills || []).filter((skill) => skill?.name?.trim());
   const techSummary = skills
     .slice(0, 5)
@@ -39,7 +43,7 @@ function ResumeTemplateTwo({ data }) {
             </div>
           </div>
 
-          {(data.email || data.mobileNumber || (data.socialLinks || []).length > 0) && (
+          {(data.email || data.mobileNumber || resumeLocation || (data.socialLinks || []).length > 0) && (
             <div className="rt2-side-section">
               <h3>Contact</h3>
               <div className="rt2-contact-list">
@@ -59,6 +63,16 @@ function ResumeTemplateTwo({ data }) {
                     <div className="rt2-contact-copy">
                       <strong>Mobile</strong>
                       <span>{data.mobileNumber}</span>
+                    </div>
+                  </div>
+                )}
+
+                {resumeLocation && (
+                  <div className="rt2-contact-item">
+                    <span className="rt2-contact-icon">⌖</span>
+                    <div className="rt2-contact-copy">
+                      <strong>Location</strong>
+                      <span>{resumeLocation}</span>
                     </div>
                   </div>
                 )}

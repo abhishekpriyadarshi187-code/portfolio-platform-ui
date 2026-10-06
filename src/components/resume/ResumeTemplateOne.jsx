@@ -1,9 +1,10 @@
 import "../../styles/resume/ResumeTemplateOne.css";
 import { categorizeSkills } from "../../utils/skillCategories";
+import { formatCurrentLocation } from "../../utils/profileLocation";
 
 function ResumeTemplateOne({ data }) {
   const skills = (data?.skills || []).filter((skill) => skill?.name?.trim());
-  const contactItems = buildContactItems(data);
+  const { primaryContactItems, socialContactItems } = buildContactLines(data);
   const summaryText =
     data?.professionalSummary?.trim() ||
     data?.about?.trim() ||
@@ -16,8 +17,13 @@ function ResumeTemplateOne({ data }) {
       <header className="rt1-header">
         <h1 className="rt1-name">{data?.fullName || "Your Name"}</h1>
         <p className="rt1-headline">{normalizeHeadline(data?.headline)}</p>
-        {contactItems.length > 0 && (
-          <p className="rt1-contact-line">{contactItems.join(" | ")}</p>
+        {primaryContactItems.length > 0 && (
+          <p className="rt1-contact-line">{primaryContactItems.join(" | ")}</p>
+        )}
+        {socialContactItems.length > 0 && (
+          <p className="rt1-contact-line rt1-social-contact-line">
+            {socialContactItems.join(" | ")}
+          </p>
         )}
       </header>
 
@@ -167,23 +173,32 @@ function ResumeSection({
 
 export default ResumeTemplateOne;
 
-function buildContactItems(data) {
-  const items = [];
+function buildContactLines(data) {
+  const primaryContactItems = [];
 
   if (data?.email) {
-    items.push(data.email);
+    primaryContactItems.push(data.email);
   }
 
   if (data?.mobileNumber) {
-    items.push(data.mobileNumber);
+    primaryContactItems.push(data.mobileNumber);
   }
 
-  (data?.socialLinks || []).forEach((link) => {
-    if (!link?.url) return;
-    items.push(link.url.trim());
-  });
+  const location = formatCurrentLocation(data?.currentLocation);
+  if (data?.showLocationOnResume && location) {
+    primaryContactItems.push(location);
+  }
 
-  return items;
+  const socialContactItems = (data?.socialLinks || [])
+    .map((link) => {
+      const url = link?.url?.trim();
+      if (!url) return "";
+      const platform = link?.platform?.trim();
+      return platform ? `${platform}: ${url}` : url;
+    })
+    .filter(Boolean);
+
+  return { primaryContactItems, socialContactItems };
 }
 
 function normalizeHeadline(headline = "") {
@@ -191,12 +206,6 @@ function normalizeHeadline(headline = "") {
   if (!normalized) return "Senior Software Engineer";
   if (normalized.toLowerCase() === "sse") return "Senior Software Engineer";
   return normalized;
-}
-
-function formatLevel(level = "") {
-  const normalized = level.trim();
-  if (!normalized) return "";
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
 }
 
 function formatDate(dateString) {

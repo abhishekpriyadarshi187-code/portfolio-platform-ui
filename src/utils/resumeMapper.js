@@ -2,6 +2,12 @@ export const mapProfileToResumeData = (profile) => ({
   fullName: profile?.fullName || "",
   email: profile?.email || "",
   mobileNumber: profile?.mobileNumber || "",
+  currentLocation: {
+    city: profile?.currentLocation?.city || "",
+    state: profile?.currentLocation?.state || "",
+    country: profile?.currentLocation?.country || "",
+  },
+  showLocationOnResume: Boolean(profile?.showLocationOnResume),
   headline: profile?.headline || "",
   professionalSummary: profile?.professionalSummary || "",
   about: profile?.about || "",
